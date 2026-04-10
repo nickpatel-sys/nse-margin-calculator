@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NSE F&amp;O Margin Calculator</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <h1>NSE <span>F&amp;O</span> Margin Calculator</h1>
+    <div class="header-right">
+      <span id="status-date"></span>
+      <span id="status-chip" class="status-chip chip-warn">Loading…</span>
+      <button id="refresh-btn" class="btn btn-ghost btn-sm">Refresh Data</button>
+    </div>
+  </header>
+
+  <!-- ── Data Status Banner ─────────────────────────────────────────────── -->
+  <div id="status-banner" class="banner banner-warn" hidden>
+    <span class="banner-text"></span>
+  </div>
+
+  <!-- ── Add Position ───────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-title">Add Position</div>
+    <form id="add-position-form" onsubmit="return false;">
+      <div class="form-grid">
+
+        <!-- Symbol -->
+        <div class="form-group">
+          <label for="symbol-select">Symbol</label>
+          <select id="symbol-select">
+            <option value="">— Select —</option>
+          </select>
+        </div>
+
+        <!-- Instrument Type -->
+        <div class="form-group">
+          <label>Type</label>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="type" id="type-future" value="future" />
+              <span>Future</span>
+            </label>
+            <label>
+              <input type="radio" name="type" id="type-option" value="option" checked />
+              <span>Option</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Expiry -->
+        <div class="form-group">
+          <label for="expiry-select">Expiry</label>
+          <select id="expiry-select">
+            <option value="">— Expiry —</option>
+          </select>
+        </div>
+
+        <!-- Strike (options only) -->
+        <div class="form-group" id="strike-row">
+          <label for="strike-select">Strike</label>
+          <select id="strike-select">
+            <option value="">— Strike —</option>
+          </select>
+        </div>
+
+        <!-- Option Type (options only) -->
+        <div class="form-group" id="opt-type-row">
+          <label>Option Type</label>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="opt-type" value="CE" checked />
+              <span>CE</span>
+            </label>
+            <label>
+              <input type="radio" name="opt-type" value="PE" />
+              <span>PE</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Side -->
+        <div class="form-group">
+          <label>Side</label>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="side" id="side-buy" value="buy" />
+              <span>Buy</span>
+            </label>
+            <label>
+              <input type="radio" name="side" id="side-sell" value="sell" checked />
+              <span>Sell</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Lots -->
+        <div class="form-group">
+          <label for="lots-input">Lots</label>
+          <div class="lots-stepper">
+            <button type="button" id="lots-minus">−</button>
+            <input type="number" id="lots-input" value="1" min="1" max="5000" />
+            <button type="button" id="lots-plus">+</button>
+          </div>
+        </div>
+
+        <!-- Add button -->
+        <div class="form-actions">
+          <button type="button" id="add-btn" class="btn btn-primary" style="width:100%;">
+            + Add to Portfolio
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <!-- ── Portfolio ──────────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="portfolio-header">
+      <div class="card-title" style="margin-bottom:0;">Portfolio</div>
+      <button id="clear-btn" class="btn btn-danger btn-sm" disabled>Clear All</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Contract</th>
+            <th>Lots</th>
+            <th>Side</th>
+            <th>Expiry</th>
+            <th style="text-align:right;">Notional</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="portfolio-tbody">
+          <tr id="portfolio-empty">
+            <td colspan="6">No positions added yet. Add a position above.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Calculate Row ─────────────────────────────────────────────────── -->
+  <div class="calculate-row">
+    <button id="calc-btn" class="btn btn-primary" disabled>
+      Calculate Margin →
+    </button>
+  </div>
+
+  <!-- ── Result Panel ───────────────────────────────────────────────────── -->
+  <div id="result-panel" class="card" hidden>
+    <div class="card-title">Margin Breakdown</div>
+
+    <!-- Mode badge -->
+    <div class="mode-row">
+      Calculated using: <span id="res-mode" class="badge badge-live">Live SPAN</span>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="result-summary">
+      <div class="summary-item">
+        <div class="summary-label">SPAN Margin</div>
+        <div class="summary-value" id="res-span">₹0</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Exposure Margin</div>
+        <div class="summary-value" id="res-exposure">₹0</div>
+      </div>
+      <div class="summary-item summary-total">
+        <div class="summary-label">Total Margin Required</div>
+        <div class="summary-value" id="res-total">₹0</div>
+      </div>
+      <div class="summary-item summary-premium">
+        <div class="summary-label">Premium Received</div>
+        <div class="summary-value" id="res-premium">₹0</div>
+      </div>
+    </div>
+
+    <!-- By-commodity breakdown -->
+    <div class="breakdown-title">By Underlying</div>
+    <div id="commodity-breakdown" class="breakdown-cards"></div>
+
+    <!-- By-position breakdown -->
+    <div class="breakdown-title">By Position</div>
+    <div class="table-wrap">
+      <table class="position-table">
+        <thead>
+          <tr>
+            <th>Contract</th>
+            <th>Lots</th>
+            <th>Side</th>
+            <th style="text-align:right;">Notional</th>
+            <th>Worst Sc.</th>
+            <th style="text-align:right;">Sc. Loss</th>
+            <th style="text-align:right;">Exposure</th>
+            <th>Mode</th>
+          </tr>
+        </thead>
+        <tbody id="position-breakdown-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- ── Error Toast ─────────────────────────────────────────────────────── -->
+<div id="error-toast" hidden></div>
+
+<!-- ── JS (ES modules) ─────────────────────────────────────────────────── -->
+<script type="module" src="/js/app.js"></script>
+
+<!-- Wire type radio to select element for app.js -->
+<script>
+  // Map radio buttons so app.js can read document.getElementById("type-select").value
+  // We proxy the radio group through a hidden select for simpler app.js logic
+  (function () {
+    const sel = document.createElement("select");
+    sel.id = "type-select";
+    sel.hidden = true;
+    sel.innerHTML = '<option value="option">option</option><option value="future">future</option>';
+    document.body.appendChild(sel);
+
+    document.querySelectorAll('input[name="type"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        sel.value = radio.value;
+        sel.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    });
+  })();
+</script>
+</body>
+</html>
