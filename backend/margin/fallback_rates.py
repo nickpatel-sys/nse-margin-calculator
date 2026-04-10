@@ -73,7 +73,12 @@ def build_fallback_risk_array(
     # vol_moves = [+1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1]
 
     scenarios = []
-    ref = future_price if future_price else underlying_price
+    # For options, delta is computed against the underlying, not the option price.
+    # For futures, future_price is the relevant starting level.
+    if instrument_type in ("FUTIDX", "FUTSTK"):
+        ref = future_price if future_price else underlying_price
+    else:
+        ref = underlying_price if underlying_price else future_price
 
     for frac in price_fracs:
         price_move = psr * frac        # INR move in underlying
