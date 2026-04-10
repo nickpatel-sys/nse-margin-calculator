@@ -57,7 +57,10 @@ export function renderPortfolioTable(positions) {
   const calcBtn = document.getElementById("calc-btn");
   const clearBtn = document.getElementById("clear-btn");
 
-  tbody.innerHTML = "";
+  // Remove only dynamically-added rows; preserve the static #portfolio-empty sentinel.
+  [...tbody.children].forEach(child => {
+    if (child.id !== "portfolio-empty") child.remove();
+  });
 
   if (positions.length === 0) {
     emptyRow.hidden = false;
