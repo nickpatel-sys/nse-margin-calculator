@@ -25,6 +25,18 @@ curl http://localhost:5000/api/span-status
 
 There are no automated tests at this time.
 
+## Documentation
+
+Full feature documentation lives in `docs/`:
+- `docs/Home.md` — overview and quick start
+- `docs/User-Guide.md` — UI walkthrough
+- `docs/API-Reference.md` — all REST endpoints
+- `docs/Margin-Engine.md` — SPAN calculation logic
+- `docs/Data-Pipeline.md` — NSE data sources and parsers
+- `docs/Architecture.md` — DB schema, config, directory layout
+
+**Keep the wiki up to date** when making material changes: new API fields, new config keys, changes to margin calculation logic, new data sources, or schema migrations.
+
 ## Architecture
 
 **Data flow:** NSE archive → `downloader.py` → zip on disk → parser → SQLite → calculator → REST API → frontend JS
