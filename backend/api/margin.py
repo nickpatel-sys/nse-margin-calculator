@@ -98,6 +98,7 @@ def _serialize_result(r: MarginResult) -> dict:
                 "exposure_margin": round(p.exposure_margin, 2),
                 "position_type": p.position_type,
                 "data_mode": p.data_mode,
+                "underlying_isin": p.underlying_isin,
                 "variation_margin": round(p.variation_margin, 2) if p.variation_margin is not None else None,
             }
             for p in r.by_position

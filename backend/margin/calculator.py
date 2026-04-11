@@ -72,6 +72,7 @@ class PositionResult:
     exposure_margin: float
     position_type: str   # 'long_future' | 'short_future' | 'long_option' | 'short_option'
     data_mode: str       # 'span_file' | 'estimated'
+    underlying_isin: str | None = None    # None for index instruments
     variation_margin: float | None = None  # None for options; positive = gain
 
 
@@ -253,6 +254,7 @@ def calculate_portfolio_margin(
             exposure_margin=exp_margin,
             position_type=pos_type,
             data_mode=data_mode,
+            underlying_isin=getattr(contract, "underlying_isin", None),
             variation_margin=vm,
         ))
 
@@ -292,6 +294,16 @@ def calculate_portfolio_margin(
             for i, v in enumerate(net_scenarios)
         ]
         scan_risk = max(0.0, max(effective))
+
+        # NSE rule: long option buyers pay no SPAN margin — their worst-case loss
+        # is the premium already paid.  Zero out scan_risk when every position in
+        # this commodity is a long option.
+        all_long_options = all(
+            p["instrument_type"] in ("OPTIDX", "OPTSTK") and p["side"] == "buy"
+            for p in pos_list
+        )
+        if all_long_options:
+            scan_risk = 0.0
 
         # Short option minimum
         short_lots = sum(

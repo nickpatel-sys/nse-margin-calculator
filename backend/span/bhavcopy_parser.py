@@ -26,6 +26,7 @@ from pathlib import Path
 from backend.extensions import db
 from backend.models.db import Contract, CombinedCommodity, SpanFile
 from backend.margin.fallback_rates import get_fallback_commodity
+from backend.span.isin_map import get_isin_map
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ def parse_bhavcopy(zip_path: Path, trade_date: date, span_file: SpanFile) -> int
     """
     count = 0
     commodity_cache: dict[str, CombinedCommodity] = {}
+    isin_map = get_isin_map()  # {symbol: isin} for equity-listed stocks
 
     try:
         with zipfile.ZipFile(zip_path) as zf:
@@ -130,8 +132,11 @@ def parse_bhavcopy(zip_path: Path, trade_date: date, span_file: SpanFile) -> int
             # Prefer SttlmPric; fall back to ClsPric then LastPric
             settle_raw  = (row.get("SttlmPric") or row.get("ClsPric") or row.get("LastPric") or "0").strip()
             underly_raw = (row.get("UndrlygPric") or "0").strip()
-            settle_price   = _to_float(settle_raw)
+            # Previous day's settlement price (column name varies across file formats)
+            prev_raw    = (row.get("PrvsClsgPric") or row.get("PrvsClsPric") or "0").strip()
+            settle_price     = _to_float(settle_raw)
             underlying_price = _to_float(underly_raw)
+            prev_settlement  = _to_float(prev_raw) or None  # store None when absent/zero
 
             # Underlying / commodity code (strip series suffix)
             commodity_code = _commodity_for(symbol, instr_type)
@@ -148,6 +153,9 @@ def parse_bhavcopy(zip_path: Path, trade_date: date, span_file: SpanFile) -> int
                 )
                 commodity_cache[commodity_code] = cc
 
+            # ISIN of the underlying (stocks only; indices have no ISIN)
+            underlying_isin = isin_map.get(commodity_code) if instr_type in ("FUTSTK", "OPTSTK") else None
+
             contract = Contract(
                 span_file_id=span_file.id,
                 trade_date=trade_date,
@@ -160,6 +168,8 @@ def parse_bhavcopy(zip_path: Path, trade_date: date, span_file: SpanFile) -> int
                 lot_size=lot_size,
                 underlying_price=underlying_price,
                 future_price=settle_price,
+                prev_settlement=prev_settlement,
+                underlying_isin=underlying_isin,
                 contract_key=contract_key,
             )
             db.session.add(contract)

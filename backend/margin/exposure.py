@@ -5,7 +5,7 @@ NSE Circular reference: NSCCL/CMPT/46514 and subsequent updates.
 
 Rules
 -----
-• Index derivatives (FUTIDX / OPTIDX): 3 % of notional value
+• Index derivatives (FUTIDX / OPTIDX): 2 % of notional value
 • Stock derivatives (FUTSTK / OPTSTK): 5 % of notional value
 • Options buyers: exposure margin = 0 (only premium is at risk)
 • Calendar spreads: exposure on 1/3 of the far-month leg only

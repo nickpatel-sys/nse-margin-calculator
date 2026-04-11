@@ -62,10 +62,10 @@ def test_long_nifty_future_span_equals_psr(app, nifty_future_contract):
 
 
 def test_futures_exposure_margin(app, nifty_future_contract):
-    """Exposure = 3% × lot_size × underlying × |lots|."""
+    """Exposure = 2% × lot_size × underlying × |lots| (NSE index rate)."""
     req = [PositionRequest(nifty_future_contract, -1)]
     result = _calc(app, req)
-    expected_exposure = 0.03 * 25 * 22000.0 * 1
+    expected_exposure = 0.02 * 25 * 22000.0 * 1
     assert result.exposure_margin == pytest.approx(expected_exposure)
 
 
@@ -101,10 +101,10 @@ def test_long_option_exposure_is_zero(app, nifty_ce_contract):
 
 
 def test_short_option_exposure_is_nonzero(app, nifty_ce_contract):
-    """Short option writer pays exposure margin."""
+    """Short option writer pays exposure margin (2% for index)."""
     req = [PositionRequest(nifty_ce_contract, -1)]
     result = _calc(app, req)
-    expected_exposure = 0.03 * 25 * 22000.0
+    expected_exposure = 0.02 * 25 * 22000.0
     assert result.exposure_margin == pytest.approx(expected_exposure)
 
 
@@ -283,3 +283,35 @@ def test_per_position_vm_is_in_by_position(app, nifty_future_contract):
     pos = result.by_position[0]
     # VM = +1 × 25 × (22050 - 22000) = 1250
     assert pos.variation_margin == pytest.approx(1 * 25 * (22050.0 - 22000.0))
+
+
+# ── Long option SPAN rules ────────────────────────────────────────────────────
+
+def test_long_option_span_is_zero(app, nifty_ce_contract):
+    """
+    NSE rule: long option buyers pay no SPAN margin.
+    Their downside is bounded by the premium already paid.
+    """
+    req = [PositionRequest(nifty_ce_contract, 1)]
+    result = _calc(app, req)
+    assert result.span_margin == pytest.approx(0.0)
+
+
+def test_long_option_total_margin_is_zero(app, nifty_ce_contract):
+    """Long option: SPAN=0, Exposure=0, Total=0 (premium is the only cost)."""
+    req = [PositionRequest(nifty_ce_contract, 1)]
+    result = _calc(app, req)
+    assert result.total_margin == pytest.approx(0.0)
+
+
+def test_mixed_long_short_options_span_is_nonzero(app, nifty_ce_contract, nifty_pe_contract):
+    """
+    A portfolio with short options alongside long options still generates SPAN.
+    The long-option-only zero rule must not suppress margin for short legs.
+    """
+    req = [
+        PositionRequest(nifty_ce_contract, -1),   # short CE
+        PositionRequest(nifty_pe_contract,  1),   # long PE
+    ]
+    result = _calc(app, req)
+    assert result.span_margin > 0.0

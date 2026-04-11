@@ -35,7 +35,7 @@ class TestConfig:
     DOWNLOAD_TIMEOUT_READ = 120
     DOWNLOAD_MAX_RETRIES = 3
     DOWNLOAD_BACKOFF_FACTOR = 5
-    INDEX_EXPOSURE_MARGIN_RATE = 0.03
+    INDEX_EXPOSURE_MARGIN_RATE = 0.02
     STOCK_EXPOSURE_MARGIN_RATE = 0.05
     EXTREME_SCENARIO_COVER_FRACTION = 0.35
     FALLBACK_PSR_RATES = {
@@ -125,7 +125,7 @@ def nifty_commodity(app, span_file):
             volatility_scan_range=0.04,
             inter_month_spread_charge=0.0,
             short_option_min_charge=50.0,  # per contract
-            exposure_margin_rate=0.03,
+            exposure_margin_rate=0.02,
             instrument_type="INDEX",
             is_estimated=False,
         )
@@ -149,7 +149,7 @@ def banknifty_commodity(app, span_file):
             volatility_scan_range=0.04,
             inter_month_spread_charge=0.0,
             short_option_min_charge=50.0,
-            exposure_margin_rate=0.03,
+            exposure_margin_rate=0.02,
             instrument_type="INDEX",
             is_estimated=False,
         )

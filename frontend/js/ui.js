@@ -94,6 +94,7 @@ export function renderPortfolioTable(positions) {
         <span class="instr-badge badge-${pos.instrument_type.toLowerCase()}">${typeLabel}</span>
       </td>
       <td class="col-lots">${Math.abs(pos.quantity)}</td>
+      <td class="col-lot-size">${pos.lot_size}</td>
       <td class="col-side"><span class="${sideClass}">${pos.side.toUpperCase()}</span></td>
       <td class="col-expiry">${formatDateShort(pos.expiry_date)}</td>
       <td class="col-notional">${formatINR(notional)}</td>
@@ -195,6 +196,9 @@ function _renderPositionBreakdown(byPosition) {
       ? `<td class="text-right ${vmVal > 0 ? "text-green" : vmVal < 0 ? "text-red" : ""}">
            ${vmVal > 0 ? "+" : ""}${formatINR(vmVal)}</td>`
       : `<td class="text-muted text-right">—</td>`;
+    const isinCell = p.underlying_isin
+      ? `<td class="col-isin">${p.underlying_isin}</td>`
+      : `<td class="col-isin text-muted">—</td>`;
     tr.innerHTML = `
       <td>${formatContractName(p)}</td>
       <td>${p.lots}</td>
@@ -204,6 +208,7 @@ function _renderPositionBreakdown(byPosition) {
       <td>${formatINR(p.worst_scenario_loss)}</td>
       <td>${formatINR(p.exposure_margin)}</td>
       ${vmCell}
+      ${isinCell}
       <td><span class="badge ${modeClass}">${dataModeLabel(p.data_mode)}</span></td>
     `;
     tbody.appendChild(tr);

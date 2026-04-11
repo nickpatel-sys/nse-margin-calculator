@@ -33,7 +33,7 @@ class Config:
     DOWNLOAD_BACKOFF_FACTOR = 5     # seconds (5 / 15 / 30)
 
     # ── Margin rates ──────────────────────────────────────────────────────────
-    INDEX_EXPOSURE_MARGIN_RATE = 0.03       # 3 % for index derivatives
+    INDEX_EXPOSURE_MARGIN_RATE = 0.02       # 2 % for index derivatives (NSE circular NSCCL/CMPT/46514)
     STOCK_EXPOSURE_MARGIN_RATE = 0.05       # 5 % for stock derivatives
     EXTREME_SCENARIO_COVER_FRACTION = 0.35  # 35 % credit on scenarios 15 & 16
 

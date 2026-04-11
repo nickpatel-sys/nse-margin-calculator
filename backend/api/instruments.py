@@ -28,6 +28,8 @@ def _contract_summary(c: Contract) -> dict:
         "lot_size": c.lot_size,
         "underlying_price": c.underlying_price,
         "future_price": c.future_price,
+        "prev_settlement": c.prev_settlement,
+        "underlying_isin": c.underlying_isin,
         "commodity_code": c.commodity_code,
     }
 

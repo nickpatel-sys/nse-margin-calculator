@@ -25,9 +25,9 @@ class TestPsrRate:
 
 
 class TestGetFallbackCommodity:
-    def test_index_returns_3pct_exposure(self):
+    def test_index_returns_2pct_exposure(self):
         result = get_fallback_commodity("NIFTY", 22000.0, is_index=True)
-        assert result["exposure_margin_rate"] == pytest.approx(0.03)
+        assert result["exposure_margin_rate"] == pytest.approx(0.02)
 
     def test_stock_returns_5pct_exposure(self):
         result = get_fallback_commodity("RELIANCE", 1200.0, is_index=False)
@@ -104,25 +104,36 @@ class TestBuildFallbackRiskArray:
         assert arr[0] == pytest.approx(0.0)
         assert arr[1] == pytest.approx(0.0)
 
-    def test_futures_worst_scenario_is_full_psr(self):
-        """For a long future, worst loss = PSR (price drops by full PSR)."""
+    def test_futures_worst_scenario_is_psr_times_lot_size(self):
+        """For a long future, worst loss per lot = PSR × lot_size (price drops by full PSR)."""
         psr = 1000.0
-        arr = build_fallback_risk_array("FUTIDX", None, None, 22000, 22050, 25, psr, 0.04)
-        # Scenario 13 (index 12): price drop by PSR → loss = +PSR
-        assert arr[12] == pytest.approx(psr)
+        lot_size = 25
+        arr = build_fallback_risk_array("FUTIDX", None, None, 22000, 22050, lot_size, psr, 0.04)
+        # Scenario 13 (index 12): price drop by PSR → loss = PSR × lot_size per lot
+        assert arr[12] == pytest.approx(psr * lot_size)
 
-    def test_futures_best_scenario_is_minus_full_psr(self):
+    def test_futures_best_scenario_is_minus_psr_times_lot_size(self):
         psr = 1000.0
-        arr = build_fallback_risk_array("FUTIDX", None, None, 22000, 22050, 25, psr, 0.04)
-        # Scenario 11 (index 10): price rise by PSR → gain = -PSR
-        assert arr[10] == pytest.approx(-psr)
+        lot_size = 25
+        arr = build_fallback_risk_array("FUTIDX", None, None, 22000, 22050, lot_size, psr, 0.04)
+        # Scenario 11 (index 10): price rise by PSR → gain = -PSR × lot_size
+        assert arr[10] == pytest.approx(-psr * lot_size)
 
-    def test_extreme_scenarios_are_double_psr(self):
+    def test_extreme_scenarios_are_double_psr_times_lot_size(self):
         psr = 1000.0
-        arr = build_fallback_risk_array("FUTIDX", None, None, 22000, 22050, 25, psr, 0.04)
-        # Scenario 16 (index 15): price drops 2×PSR
-        assert arr[15] == pytest.approx(2 * psr)
-        assert arr[14] == pytest.approx(-2 * psr)
+        lot_size = 25
+        arr = build_fallback_risk_array("FUTIDX", None, None, 22000, 22050, lot_size, psr, 0.04)
+        # Scenario 16 (index 15): price drops 2×PSR → loss = 2 × PSR × lot_size
+        assert arr[15] == pytest.approx(2 * psr * lot_size)
+        assert arr[14] == pytest.approx(-2 * psr * lot_size)
+
+    def test_lot_size_scales_all_scenarios(self):
+        """Risk array values scale linearly with lot_size — verifies no per-unit leakage."""
+        psr, underlying = 1000.0, 22000.0
+        arr_1  = build_fallback_risk_array("FUTIDX", None, None, underlying, underlying, 1,  psr, 0.04)
+        arr_65 = build_fallback_risk_array("FUTIDX", None, None, underlying, underlying, 65, psr, 0.04)
+        for s1, s65 in zip(arr_1, arr_65):
+            assert s65 == pytest.approx(s1 * 65)
 
     def test_call_option_has_bounded_loss_on_downside(self):
         """Long call loses limited amount when price drops."""

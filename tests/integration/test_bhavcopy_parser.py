@@ -175,8 +175,8 @@ def test_half_integer_strike_contract_key(app, tmp_path):
 
 # ── Commodity creation ────────────────────────────────────────────────────────
 
-def test_index_commodity_created_with_3pct_exposure(app, tmp_path):
-    """Parsing creates a CombinedCommodity for NIFTY with 3% exposure rate."""
+def test_index_commodity_created_with_2pct_exposure(app, tmp_path):
+    """Parsing creates a CombinedCommodity for NIFTY with 2% exposure rate (NSE index rate)."""
     zip_path = _write_zip(tmp_path, SAMPLE_BHAV_ROWS)
     _parse(app, zip_path)
 
@@ -186,7 +186,7 @@ def test_index_commodity_created_with_3pct_exposure(app, tmp_path):
             trade_date=TRADE_DATE, commodity_code="NIFTY"
         ).first()
         assert cc is not None
-        assert cc.exposure_margin_rate == pytest.approx(0.03)
+        assert cc.exposure_margin_rate == pytest.approx(0.02)
         assert cc.is_estimated is True
 
 

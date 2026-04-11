@@ -301,13 +301,13 @@ class TestMarginCalculate:
         assert len(r.get_json()["by_position"]) == 2
 
     def test_exposure_margin_for_short_future(self, client, nifty_future_contract):
-        """Short NIFTY future: exposure = 3% × 25 × 22000."""
+        """Short NIFTY future: exposure = 2% × 25 × 22000 (NSE index rate)."""
         body = {
             "trade_date": DATE_STR,
             "positions": [{"contract_key": "NIFTY-FUTIDX-20260129", "quantity": -1}],
         }
         r = _post(client, "/api/margin/calculate", body)
-        expected = 0.03 * 25 * 22000.0
+        expected = 0.02 * 25 * 22000.0
         assert r.get_json()["summary"]["exposure_margin"] == pytest.approx(expected)
 
     def test_total_is_span_plus_exposure(self, client, nifty_future_contract):

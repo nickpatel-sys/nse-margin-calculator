@@ -246,6 +246,7 @@ async function _onAddPosition() {
       lot_size: contract.lot_size,
       underlying_price: contract.underlying_price,
       future_price: contract.future_price,
+      prev_settlement: contract.prev_settlement || 0,
       quantity: signedQty,
       side,
     });

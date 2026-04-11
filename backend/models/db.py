@@ -94,10 +94,13 @@ class Contract(db.Model):
     strike_price    = db.Column(db.Float)        # NULL for futures
     option_type     = db.Column(db.String(4))    # CE | PE, NULL for futures
     lot_size        = db.Column(db.Integer,     nullable=False)
-    underlying_price = db.Column(db.Float)       # settlement price of underlying
-    future_price    = db.Column(db.Float)        # settlement/last price of this contract
+    underlying_price  = db.Column(db.Float)       # settlement price of underlying
+    future_price      = db.Column(db.Float)       # today's settlement/last price of this contract
+    prev_settlement   = db.Column(db.Float)       # previous day's settlement price (from bhavcopy)
+    # ISIN of the underlying stock (NULL for index instruments)
+    underlying_isin   = db.Column(db.String(20),  nullable=True)
     # Composite unique key:  NIFTY-OPTIDX-20250424-22500-CE
-    contract_key    = db.Column(db.String(64),  nullable=False)
+    contract_key      = db.Column(db.String(64),  nullable=False)
 
     span_file  = db.relationship("SpanFile", back_populates="contracts")
     risk_array = db.relationship("RiskArray", back_populates="contract",

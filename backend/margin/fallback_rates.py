@@ -31,7 +31,7 @@ def get_fallback_commodity(
     psr = psr_rate * underlying_price if underlying_price else 0.0
 
     vsr = 0.04 if is_index else 0.06
-    exposure_rate = 0.03 if is_index else 0.05
+    exposure_rate = Config.INDEX_EXPOSURE_MARGIN_RATE if is_index else Config.STOCK_EXPOSURE_MARGIN_RATE
 
     # Short option min charge: approx 1.5% of underlying per lot-unit
     somc = 0.015 * underlying_price if underlying_price else 0.0
@@ -99,7 +99,8 @@ def build_fallback_risk_array(
     scenarios.append(extreme_up)
     scenarios.append(extreme_down)
 
-    return scenarios  # 16 values, per-unit (not per-lot)
+    # Scale to per-lot: official risk arrays are in INR per lot, so fallback must match.
+    return [s * lot_size for s in scenarios]
 
 
 def _option_delta(instr_type: str, opt_type: str | None,

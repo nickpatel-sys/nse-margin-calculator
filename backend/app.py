@@ -46,6 +46,9 @@ def create_app(config_object=None) -> Flask:
     import backend.models.db  # noqa: F401
     with app.app_context():
         db.create_all()
+        # Add columns that were introduced after initial schema creation.
+        # db.create_all() does not ALTER existing tables, so we do it explicitly.
+        _apply_schema_migrations(app)
 
     # ── Serve frontend ────────────────────────────────────────────────────────
     @app.get("/")
@@ -67,6 +70,22 @@ def create_app(config_object=None) -> Flask:
         _startup_data_load(app)
 
     return app
+
+
+def _apply_schema_migrations(app: Flask):
+    """Run idempotent ALTER TABLE statements for columns added after initial release."""
+    migrations = [
+        "ALTER TABLE contracts ADD COLUMN prev_settlement REAL",
+        "ALTER TABLE contracts ADD COLUMN underlying_isin TEXT",
+    ]
+    with app.app_context():
+        for sql in migrations:
+            try:
+                db.session.execute(db.text(sql))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                # Column already exists — safe to ignore
 
 
 def _startup_data_load(app: Flask):
