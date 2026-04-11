@@ -407,6 +407,34 @@ tbody tr:hover { background: var(--surface2); }
   text-align: center;
 }
 
+/* ── Variation Margin ────────────────────────────────────────────────────── */
+.text-green { color: var(--green); }
+.text-red   { color: var(--red); }
+.text-right { text-align: right; }
+
+.prev-settle-input {
+  width: 86px;
+  font-size: 0.82rem;
+  text-align: right;
+  padding: 3px 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+.prev-settle-input:focus { outline: none; border-color: var(--accent); }
+.col-prev-close { text-align: right; }
+
+.summary-vm .summary-value,
+.summary-net .summary-value { font-size: 1.1rem; }
+.summary-net {
+  border-top: 2px solid var(--border);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+.summary-net .summary-label { font-weight: 700; }
+.summary-net .summary-value { font-weight: 700; color: var(--accent); }
+
 /* ── Utility ─────────────────────────────────────────────────────────────── */
 [hidden] { display: none !important; }
 

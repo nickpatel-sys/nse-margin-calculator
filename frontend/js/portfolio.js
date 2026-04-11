@@ -38,9 +38,16 @@ export function addPosition(pos) {
       _positions = _positions.filter((p) => p !== dup);
     }
   } else {
-    _positions.push({ ...pos });
+    _positions.push({ prev_settlement: 0, ...pos });
   }
   _notify();
+}
+
+export function updatePrevSettlement(index, value) {
+  if (_positions[index]) {
+    _positions[index].prev_settlement = parseFloat(value) || 0;
+  }
+  // No re-render needed — value is read at Calculate time
 }
 
 export function removePosition(index) {
@@ -59,6 +66,7 @@ export function toApiPayload(tradeDate) {
     positions: _positions.map((p) => ({
       contract_key: p.contract_key,
       quantity: p.quantity,
+      prev_settlement: p.prev_settlement || 0,
     })),
   };
 }

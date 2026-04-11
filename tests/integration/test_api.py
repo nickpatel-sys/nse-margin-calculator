@@ -345,3 +345,66 @@ class TestMarginCalculate:
         r = _post(client, "/api/margin/calculate", body)
         # Will return 422 (contract not found for today's date) — not 400/500
         assert r.status_code in (200, 422)
+
+    def test_api_summary_includes_vm_fields(self, client, nifty_future_contract):
+        """Summary always includes variation_margin and net_cash_required."""
+        body = {
+            "trade_date": DATE_STR,
+            "positions": [{"contract_key": "NIFTY-FUTIDX-20260129", "quantity": -1}],
+        }
+        r = _post(client, "/api/margin/calculate", body)
+        summary = r.get_json()["summary"]
+        assert "variation_margin" in summary
+        assert "net_cash_required" in summary
+
+    def test_api_vm_zero_when_prev_settlement_omitted(self, client, nifty_future_contract):
+        """Omitting prev_settlement → VM=0, net_cash_required=total_margin."""
+        body = {
+            "trade_date": DATE_STR,
+            "positions": [{"contract_key": "NIFTY-FUTIDX-20260129", "quantity": -1}],
+        }
+        r = _post(client, "/api/margin/calculate", body)
+        summary = r.get_json()["summary"]
+        assert summary["variation_margin"] == pytest.approx(0.0)
+        assert summary["net_cash_required"] == pytest.approx(summary["total_margin"])
+
+    def test_api_vm_computed_when_prev_settlement_provided(self, client, nifty_future_contract):
+        """With prev_settlement provided, VM and net_cash differ from total_margin."""
+        body = {
+            "trade_date": DATE_STR,
+            "positions": [{
+                "contract_key": "NIFTY-FUTIDX-20260129",
+                "quantity": -1,
+                "prev_settlement": 23000.0,  # higher than today's 22050
+            }],
+        }
+        r = _post(client, "/api/margin/calculate", body)
+        summary = r.get_json()["summary"]
+        # Short future, price fell (22050 < 23000) → gain → VM > 0 → net_cash < total
+        assert summary["variation_margin"] > 0
+        assert summary["net_cash_required"] < summary["total_margin"]
+
+    def test_api_position_includes_vm_for_futures(self, client, nifty_future_contract):
+        """by_position entries for futures include variation_margin."""
+        body = {
+            "trade_date": DATE_STR,
+            "positions": [{
+                "contract_key": "NIFTY-FUTIDX-20260129",
+                "quantity": 1,
+                "prev_settlement": 22000.0,
+            }],
+        }
+        r = _post(client, "/api/margin/calculate", body)
+        pos = r.get_json()["by_position"][0]
+        assert "variation_margin" in pos
+        assert pos["variation_margin"] == pytest.approx(1 * 25 * (22050.0 - 22000.0))
+
+    def test_api_position_vm_null_for_options(self, client, nifty_ce_contract):
+        """by_position entries for options have variation_margin = null."""
+        body = {
+            "trade_date": DATE_STR,
+            "positions": [{"contract_key": "NIFTY-OPTIDX-20260129-22000-CE", "quantity": -1}],
+        }
+        r = _post(client, "/api/margin/calculate", body)
+        pos = r.get_json()["by_position"][0]
+        assert pos["variation_margin"] is None

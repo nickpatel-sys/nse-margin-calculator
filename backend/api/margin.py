@@ -40,7 +40,12 @@ def calculate_margin():
             return jsonify({"error": f"positions[{i}].quantity must be a non-zero integer"}), 400
         if qty == 0:
             return jsonify({"error": f"positions[{i}].quantity must not be zero"}), 400
-        positions.append(PositionRequest(contract_key=str(key), quantity=int(qty)))
+        prev_settle = p.get("prev_settlement")
+        positions.append(PositionRequest(
+            contract_key=str(key),
+            quantity=int(qty),
+            prev_settlement=float(prev_settle) if prev_settle else 0.0,
+        ))
 
     result: MarginResult = calculate_portfolio_margin(positions, trade_date)
 
@@ -59,6 +64,8 @@ def _serialize_result(r: MarginResult) -> dict:
             "total_margin": round(r.total_margin, 2),
             "premium_received": round(r.premium_received, 2),
             "data_mode": r.data_mode,
+            "variation_margin": round(r.variation_margin, 2),
+            "net_cash_required": round(r.net_cash_required, 2),
         },
         "by_commodity": [
             {
@@ -91,6 +98,7 @@ def _serialize_result(r: MarginResult) -> dict:
                 "exposure_margin": round(p.exposure_margin, 2),
                 "position_type": p.position_type,
                 "data_mode": p.data_mode,
+                "variation_margin": round(p.variation_margin, 2) if p.variation_margin is not None else None,
             }
             for p in r.by_position
         ],

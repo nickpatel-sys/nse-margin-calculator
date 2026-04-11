@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NSE F&amp;O Margin Calculator</title>
+  <title>NSEMargins — F&amp;O Margin Calculator</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -11,7 +11,7 @@
 
   <!-- ── Header ─────────────────────────────────────────────────────────── -->
   <header class="app-header">
-    <h1>NSE <span>F&amp;O</span> Margin Calculator</h1>
+    <h1>NSE<span>Margins</span></h1>
     <div class="header-right">
       <span id="status-date"></span>
       <span id="status-chip" class="status-chip chip-warn">Loading…</span>
@@ -136,12 +136,13 @@
             <th>Side</th>
             <th>Expiry</th>
             <th style="text-align:right;">Notional</th>
+            <th style="text-align:right;">Prev. Close</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="portfolio-tbody">
           <tr id="portfolio-empty">
-            <td colspan="6">No positions added yet. Add a position above.</td>
+            <td colspan="7">No positions added yet. Add a position above.</td>
           </tr>
         </tbody>
       </table>
@@ -182,6 +183,14 @@
         <div class="summary-label">Premium Received</div>
         <div class="summary-value" id="res-premium">₹0</div>
       </div>
+      <div class="summary-item summary-vm" id="res-vm-row" hidden>
+        <div class="summary-label">Variation Margin</div>
+        <div class="summary-value" id="res-vm">—</div>
+      </div>
+      <div class="summary-item summary-net" id="res-net-row" hidden>
+        <div class="summary-label">Net Cash Required</div>
+        <div class="summary-value" id="res-net-cash">₹0</div>
+      </div>
     </div>
 
     <!-- By-commodity breakdown -->
@@ -201,6 +210,7 @@
             <th>Worst Sc.</th>
             <th style="text-align:right;">Sc. Loss</th>
             <th style="text-align:right;">Exposure</th>
+            <th style="text-align:right;">Var. Margin</th>
             <th>Mode</th>
           </tr>
         </thead>

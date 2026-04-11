@@ -4,7 +4,9 @@ import {
   formatINR, formatDate, formatDateShort,
   formatContractName, dataModeClass, dataModeLabel,
 } from "./formatters.js";
-import { removePosition, clearPortfolio } from "./portfolio.js";
+import { removePosition, clearPortfolio, updatePrevSettlement } from "./portfolio.js";
+
+const _FUTURES = new Set(["FUTIDX", "FUTSTK"]);
 
 // ── Status Banner ─────────────────────────────────────────────────────────────
 
@@ -77,6 +79,13 @@ export function renderPortfolioTable(positions) {
     const notional = Math.abs(pos.quantity) * pos.lot_size * (pos.underlying_price || 0);
     const sideClass = pos.side === "sell" ? "side-sell" : "side-buy";
     const typeLabel = _instrLabel(pos.instrument_type);
+    const isFuture = _FUTURES.has(pos.instrument_type);
+
+    const prevCloseCell = isFuture
+      ? `<td class="col-prev-close"><input class="prev-settle-input" type="number"
+           data-idx="${idx}" step="0.05" min="0"
+           value="${pos.prev_settlement || ""}" placeholder="0.00"></td>`
+      : `<td class="col-prev-close"><span class="text-muted">—</span></td>`;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -88,6 +97,7 @@ export function renderPortfolioTable(positions) {
       <td class="col-side"><span class="${sideClass}">${pos.side.toUpperCase()}</span></td>
       <td class="col-expiry">${formatDateShort(pos.expiry_date)}</td>
       <td class="col-notional">${formatINR(notional)}</td>
+      ${prevCloseCell}
       <td class="col-remove">
         <button class="btn-remove" data-idx="${idx}" title="Remove">×</button>
       </td>
@@ -95,10 +105,15 @@ export function renderPortfolioTable(positions) {
     tbody.appendChild(tr);
   });
 
-  // Wire remove buttons
+  // Wire remove buttons and prev-settlement inputs
   tbody.querySelectorAll(".btn-remove").forEach((btn) => {
     btn.addEventListener("click", () => {
       removePosition(parseInt(btn.dataset.idx, 10));
+    });
+  });
+  tbody.querySelectorAll(".prev-settle-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      updatePrevSettlement(parseInt(input.dataset.idx, 10), input.value);
     });
   });
 }
@@ -118,6 +133,25 @@ export function renderMarginResult(result) {
   const modeEl = document.getElementById("res-mode");
   modeEl.textContent = dataModeLabel(s.data_mode);
   modeEl.className = `badge ${dataModeClass(s.data_mode)}`;
+
+  // Variation margin and net cash (only shown when any position has prev_settlement)
+  const vm = s.variation_margin ?? 0;
+  const vmRow = document.getElementById("res-vm-row");
+  const netRow = document.getElementById("res-net-row");
+  const vmEl = document.getElementById("res-vm");
+  const netCashEl = document.getElementById("res-net-cash");
+
+  if (vm !== 0) {
+    // gain (positive vm) → display as "−₹X" (reduces outflow); loss → "+₹X"
+    vmEl.textContent = (vm > 0 ? "−" : "+") + formatINR(Math.abs(vm));
+    vmEl.className = "summary-value " + (vm > 0 ? "text-green" : "text-red");
+    netCashEl.textContent = formatINR(s.net_cash_required);
+    vmRow.hidden = false;
+    netRow.hidden = false;
+  } else {
+    vmRow.hidden = true;
+    netRow.hidden = true;
+  }
 
   // By-commodity breakdown
   _renderCommodityBreakdown(result.by_commodity);
@@ -156,6 +190,11 @@ function _renderPositionBreakdown(byPosition) {
   byPosition.forEach((p) => {
     const tr = document.createElement("tr");
     const modeClass = dataModeClass(p.data_mode);
+    const vmVal = p.variation_margin;
+    const vmCell = vmVal != null
+      ? `<td class="text-right ${vmVal > 0 ? "text-green" : vmVal < 0 ? "text-red" : ""}">
+           ${vmVal > 0 ? "+" : ""}${formatINR(vmVal)}</td>`
+      : `<td class="text-muted text-right">—</td>`;
     tr.innerHTML = `
       <td>${formatContractName(p)}</td>
       <td>${p.lots}</td>
@@ -164,6 +203,7 @@ function _renderPositionBreakdown(byPosition) {
       <td>S${p.worst_scenario}</td>
       <td>${formatINR(p.worst_scenario_loss)}</td>
       <td>${formatINR(p.exposure_margin)}</td>
+      ${vmCell}
       <td><span class="badge ${modeClass}">${dataModeLabel(p.data_mode)}</span></td>
     `;
     tbody.appendChild(tr);

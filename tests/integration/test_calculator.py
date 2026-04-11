@@ -226,3 +226,60 @@ def test_data_mode_span_file_when_risk_arrays_exist(app, nifty_future_contract):
     req = [PositionRequest(nifty_future_contract, -1)]
     result = _calc(app, req)
     assert result.data_mode == "span_file"
+
+
+# ── Variation margin ──────────────────────────────────────────────────────────
+
+def test_futures_vm_gain_when_price_rises_for_long(app, nifty_future_contract):
+    """Long future, today settle (22050) > prev (21000) → VM positive (gain)."""
+    req = [PositionRequest(nifty_future_contract, 1, prev_settlement=21000.0)]
+    result = _calc(app, req)
+    # VM = +1 lot × 25 × (22050 - 21000) = 26250
+    assert result.variation_margin == pytest.approx(1 * 25 * (22050.0 - 21000.0))
+    assert result.net_cash_required == pytest.approx(result.total_margin - result.variation_margin)
+    assert result.net_cash_required < result.total_margin
+
+
+def test_futures_vm_loss_when_price_falls_for_long(app, nifty_future_contract):
+    """Long future, today settle (22050) < prev (23000) → VM negative (loss)."""
+    req = [PositionRequest(nifty_future_contract, 1, prev_settlement=23000.0)]
+    result = _calc(app, req)
+    # VM = +1 × 25 × (22050 - 23000) = -23750 (loss)
+    assert result.variation_margin == pytest.approx(1 * 25 * (22050.0 - 23000.0))
+    assert result.net_cash_required > result.total_margin
+
+
+def test_short_future_vm_gain_when_price_falls(app, nifty_future_contract):
+    """Short future, today settle (22050) < prev (23000) → VM positive (gain for short)."""
+    req = [PositionRequest(nifty_future_contract, -1, prev_settlement=23000.0)]
+    result = _calc(app, req)
+    # VM = -1 × 25 × (22050 - 23000) = +23750 (gain for short)
+    assert result.variation_margin == pytest.approx((-1) * 25 * (22050.0 - 23000.0))
+    assert result.variation_margin > 0
+    assert result.net_cash_required < result.total_margin
+
+
+def test_options_have_no_variation_margin(app, nifty_ce_contract):
+    """Option positions have variation_margin = None (no daily VM)."""
+    req = [PositionRequest(nifty_ce_contract, -1, prev_settlement=100.0)]
+    result = _calc(app, req)
+    assert result.by_position[0].variation_margin is None
+    assert result.variation_margin == pytest.approx(0.0)
+    assert result.net_cash_required == pytest.approx(result.total_margin)
+
+
+def test_zero_prev_settlement_gives_zero_vm(app, nifty_future_contract):
+    """When prev_settlement is 0 (default / not provided), VM is 0."""
+    req = [PositionRequest(nifty_future_contract, -1)]  # no prev_settlement
+    result = _calc(app, req)
+    assert result.variation_margin == pytest.approx(0.0)
+    assert result.net_cash_required == pytest.approx(result.total_margin)
+
+
+def test_per_position_vm_is_in_by_position(app, nifty_future_contract):
+    """PositionResult.variation_margin is computed and present for futures."""
+    req = [PositionRequest(nifty_future_contract, 1, prev_settlement=22000.0)]
+    result = _calc(app, req)
+    pos = result.by_position[0]
+    # VM = +1 × 25 × (22050 - 22000) = 1250
+    assert pos.variation_margin == pytest.approx(1 * 25 * (22050.0 - 22000.0))

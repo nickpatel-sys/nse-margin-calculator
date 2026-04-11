@@ -49,7 +49,8 @@ EXTREME_COVER = Config.EXTREME_SCENARIO_COVER_FRACTION   # 0.35
 @dataclass
 class PositionRequest:
     contract_key: str
-    quantity: int   # +ve = long, -ve = short (in lots)
+    quantity: int           # +ve = long, -ve = short (in lots)
+    prev_settlement: float = 0.0  # previous day settlement price (0 = not provided)
 
 
 @dataclass
@@ -71,6 +72,7 @@ class PositionResult:
     exposure_margin: float
     position_type: str   # 'long_future' | 'short_future' | 'long_option' | 'short_option'
     data_mode: str       # 'span_file' | 'estimated'
+    variation_margin: float | None = None  # None for options; positive = gain
 
 
 @dataclass
@@ -95,6 +97,8 @@ class MarginResult:
     by_position: list[PositionResult] = field(default_factory=list)
     by_commodity: list[CommodityResult] = field(default_factory=list)
     error: str | None = None
+    variation_margin: float = 0.0   # portfolio total VM (positive = gain)
+    net_cash_required: float = 0.0  # total_margin - variation_margin
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -213,6 +217,14 @@ def calculate_portfolio_margin(
         if side == "sell" and contract.instrument_type in ("OPTIDX", "OPTSTK"):
             premium_received += abs(signed_lots) * contract.lot_size * (contract.future_price or 0.0)
 
+        # Variation margin (futures only, when prev_settlement provided)
+        if contract.instrument_type in ("FUTIDX", "FUTSTK") and req.prev_settlement:
+            vm = signed_lots * contract.lot_size * (
+                (contract.future_price or 0.0) - req.prev_settlement
+            )
+        else:
+            vm = None
+
         # Per-position worst scenario
         effective = [
             v * (EXTREME_COVER if i >= 14 else 1.0)
@@ -241,6 +253,7 @@ def calculate_portfolio_margin(
             exposure_margin=exp_margin,
             position_type=pos_type,
             data_mode=data_mode,
+            variation_margin=vm,
         ))
 
         # Add to commodity group
@@ -368,6 +381,12 @@ def calculate_portfolio_margin(
     else:
         overall_mode = "span_file"
 
+    # Variation margin totals
+    portfolio_vm = sum(
+        p.variation_margin for p in position_results if p.variation_margin is not None
+    )
+    net_cash = total_margin - portfolio_vm
+
     return MarginResult(
         trade_date=trade_date.isoformat(),
         span_margin=span_margin,
@@ -377,6 +396,8 @@ def calculate_portfolio_margin(
         data_mode=overall_mode,
         by_position=position_results,
         by_commodity=commodity_results,
+        variation_margin=portfolio_vm,
+        net_cash_required=net_cash,
     )
 
 
