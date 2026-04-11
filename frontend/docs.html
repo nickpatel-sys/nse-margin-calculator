@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSEMargins — Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sidebar-w: 260px;
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #94a3b8;
+    --sidebar-active: #e2e8f0;
+    --sidebar-accent: #3b82f6;
+    --content-bg: #ffffff;
+    --body-text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --code-bg: #f8fafc;
+    --code-border: #e2e8f0;
+    --blue: #2563eb;
+    --green: #16a34a;
+    --orange: #ea580c;
+    --red: #dc2626;
+    --purple: #7c3aed;
+    --header-h: 56px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--body-text);
+    background: var(--content-bg);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--sidebar-bg);
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #1e293b;
+  }
+  .sidebar-logo a {
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-logo .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--sidebar-accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: white;
+    flex-shrink: 0;
+  }
+  .sidebar-logo .logo-text {
+    font-weight: 700; font-size: 16px; color: #f1f5f9;
+    line-height: 1.2;
+  }
+  .sidebar-logo .logo-sub {
+    font-size: 11px; color: var(--sidebar-text); font-weight: 400;
+  }
+
+  .nav-section { padding: 12px 0 4px; }
+  .nav-section-label {
+    padding: 4px 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: #475569;
+  }
+  .nav-link {
+    display: block;
+    padding: 6px 20px;
+    font-size: 13.5px; color: var(--sidebar-text);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color .15s, border-color .15s, background .15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .nav-link:hover { color: #cbd5e1; background: #1e293b; }
+  .nav-link.active { color: var(--sidebar-active); border-left-color: var(--sidebar-accent); background: #1e293b; }
+  .nav-link.sub { padding-left: 32px; font-size: 13px; }
+  .nav-link.sub2 { padding-left: 44px; font-size: 12.5px; color: #64748b; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid #1e293b;
+    font-size: 12px; color: #475569;
+  }
+  .sidebar-footer a { color: var(--sidebar-accent); text-decoration: none; }
+
+  /* ── Main ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+  }
+
+  /* ── Section headings ── */
+  .doc-section { padding-top: 24px; }
+  .doc-section + .doc-section { border-top: 1px solid var(--border); margin-top: 56px; padding-top: 56px; }
+
+  h1 { font-size: 28px; font-weight: 700; line-height: 1.25; margin-bottom: 12px; color: #0f172a; }
+  h2 { font-size: 20px; font-weight: 700; margin: 40px 0 12px; color: #0f172a; }
+  h3 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; color: #1e293b; }
+  h4 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: #334155; }
+
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  ul, ol { padding-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 4px; }
+  li:last-child { margin-bottom: 0; }
+  ul ul, ol ol, ul ol, ol ul { margin: 4px 0 4px; }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ── Code ── */
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #be185d;
+  }
+
+  pre {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 16px 0 20px;
+    position: relative;
+  }
+  pre code {
+    background: none; border: none; padding: 0;
+    color: #e2e8f0; font-size: 13px; line-height: 1.7;
+  }
+  /* override hljs dark colors inside pre */
+  pre .hljs { background: transparent; padding: 0; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    background: #f8fafc; font-weight: 600; text-align: left;
+    padding: 10px 14px; color: #475569; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  /* ── Method badges ── */
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 4px; font-size: 11.5px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .02em; vertical-align: middle;
+    margin-right: 6px;
+  }
+  .badge-get  { background: #dcfce7; color: #15803d; }
+  .badge-post { background: #dbeafe; color: #1d4ed8; }
+  .badge-del  { background: #fee2e2; color: #b91c1c; }
+
+  /* ── Endpoint cards ── */
+  .endpoint {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 24px 0;
+    overflow: hidden;
+  }
+  .endpoint-header {
+    background: #f8fafc;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .endpoint-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 500; color: #0f172a;
+  }
+  .endpoint-body { padding: 20px 20px 4px; }
+  .endpoint-body > *:first-child { margin-top: 0; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 8px; padding: 14px 16px; margin: 16px 0;
+    display: flex; gap: 12px;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 14px; line-height: 1.6; }
+  .callout-body p { margin-bottom: 6px; }
+  .callout-body p:last-child { margin-bottom: 0; }
+  .callout.info    { background: #eff6ff; border-left: 3px solid #3b82f6; }
+  .callout.tip     { background: #f0fdf4; border-left: 3px solid #22c55e; }
+  .callout.warning { background: #fffbeb; border-left: 3px solid #f59e0b; }
+  .callout.note    { background: #faf5ff; border-left: 3px solid #a855f7; }
+
+  /* ── Status chip demos ── */
+  .chip-demo { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  }
+  .chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .chip.live      { background: #dcfce7; color: #15803d; }
+  .chip.estimated { background: #ffedd5; color: #c2410c; }
+  .chip.stale     { background: #fef3c7; color: #b45309; }
+  .chip.nodata    { background: #fee2e2; color: #b91c1c; }
+
+  /* ── Steps ── */
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 16px 0; }
+  .steps li {
+    counter-increment: step;
+    display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step);
+    min-width: 26px; height: 26px;
+    background: var(--blue); color: white;
+    border-radius: 50%; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── Flow diagram ── */
+  .flow {
+    background: #0f172a; border-radius: 10px;
+    padding: 24px; margin: 16px 0 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #94a3b8; line-height: 1.9;
+    overflow-x: auto;
+  }
+  .flow .hl { color: #60a5fa; }
+  .flow .arrow { color: #475569; }
+
+  /* ── Section intro ── */
+  .section-intro {
+    font-size: 16px; color: var(--muted); line-height: 1.7;
+    margin-bottom: 32px; padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Inline tag ── */
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 1px 6px; border-radius: 4px; vertical-align: middle;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .tag-required { background: #fee2e2; color: #b91c1c; }
+  .tag-optional { background: #f0fdf4; color: #15803d; }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* ── Scenario table special ── */
+  .scenario-extreme td { background: #fffbeb; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 0px; }
+    #sidebar { transform: translateX(-260px); transition: transform .25s; }
+    #sidebar.open { transform: translateX(0); width: 260px; }
+    .menu-btn {
+      display: flex; position: fixed; top: 12px; left: 12px;
+      z-index: 200; background: var(--sidebar-bg); color: white;
+      border: none; border-radius: 8px; padding: 8px 10px;
+      cursor: pointer; font-size: 18px;
+    }
+    .content { padding: 24px 20px 60px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+  }
+  @media (min-width: 769px) { .menu-btn { display: none; } }
+</style>
+</head>
+<body>
+
+<button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<!-- ── Sidebar ─────────────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="#overview">
+      <div class="logo-icon">N</div>
+      <div>
+        <div class="logo-text">NSEMargins</div>
+        <div class="logo-sub">Documentation</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Getting Started</div>
+    <a class="nav-link" href="#overview">Overview</a>
+    <a class="nav-link sub" href="#overview-quickstart">Quick Start</a>
+    <a class="nav-link sub" href="#overview-modes">Data Modes</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">User Guide</div>
+    <a class="nav-link" href="#guide">Using the App</a>
+    <a class="nav-link sub" href="#guide-status">Status Indicators</a>
+    <a class="nav-link sub" href="#guide-positions">Adding Positions</a>
+    <a class="nav-link sub" href="#guide-results">Reading Results</a>
+    <a class="nav-link sub" href="#guide-vm">Variation Margin</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">API Reference</div>
+    <a class="nav-link" href="#api">REST API</a>
+    <a class="nav-link sub" href="#api-margin">POST /margin/calculate</a>
+    <a class="nav-link sub" href="#api-symbols">GET /instruments/symbols</a>
+    <a class="nav-link sub" href="#api-expiries">GET /instruments/expiries</a>
+    <a class="nav-link sub" href="#api-strikes">GET /instruments/strikes</a>
+    <a class="nav-link sub" href="#api-futures">GET /instruments/futures</a>
+    <a class="nav-link sub" href="#api-contract">GET /instruments/contract</a>
+    <a class="nav-link sub" href="#api-search">GET /instruments/search</a>
+    <a class="nav-link sub" href="#api-status">GET /span-status</a>
+    <a class="nav-link sub" href="#api-refresh">POST /span/refresh</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Margin Engine</div>
+    <a class="nav-link" href="#engine">How SPAN Works</a>
+    <a class="nav-link sub" href="#engine-steps">Calculation Steps</a>
+    <a class="nav-link sub" href="#engine-scenarios">16 Scenarios</a>
+    <a class="nav-link sub" href="#engine-exposure">Exposure Margin</a>
+    <a class="nav-link sub" href="#engine-spreads">Spread Credits</a>
+    <a class="nav-link sub" href="#engine-estimated">Estimated Mode</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Data Pipeline</div>
+    <a class="nav-link" href="#pipeline">Data Sources</a>
+    <a class="nav-link sub" href="#pipeline-sources">Bhavcopy &amp; SPAN XML</a>
+    <a class="nav-link sub" href="#pipeline-flow">Processing Flow</a>
+    <a class="nav-link sub" href="#pipeline-scheduler">Scheduler</a>
+    <a class="nav-link sub" href="#pipeline-caching">Caching</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Architecture</div>
+    <a class="nav-link" href="#arch">System Design</a>
+    <a class="nav-link sub" href="#arch-schema">Database Schema</a>
+    <a class="nav-link sub" href="#arch-config">Configuration</a>
+    <a class="nav-link sub" href="#arch-frontend">Frontend Modules</a>
+  </div>
+
+  <div class="sidebar-footer">
+    <a href="/">← Back to App</a>
+  </div>
+</nav>
+
+<!-- ── Content ────────────────────────────────────────────── -->
+<main id="main">
+<div class="content">
+
+<!-- ══════════════════════════════════════════════════════════
+     OVERVIEW
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="overview">
+  <h1>NSEMargins</h1>
+  <p class="section-intro">
+    A local web application for calculating NSE F&amp;O SPAN margins on a portfolio of futures and options positions.
+    It downloads official end-of-day data from NSE archives, stores it in a local SQLite database,
+    and provides a REST API consumed by a browser-based portfolio calculator.
+  </p>
+
+  <h2 id="overview-quickstart">Quick Start</h2>
+  <pre><code class="language-bash"># Activate virtualenv (Windows)
+venv\Scripts\activate
+
+# Start development server
+python run.py
+
+# Open in browser
+# http://localhost:5000</code></pre>
+  <p>Data is downloaded automatically on startup for the most recent trading day. The scheduler re-fetches every evening at 18:30, 19:00, and 19:30 IST (Mon–Fri).</p>
+
+  <h2 id="overview-modes">Data Modes</h2>
+  <p>The app operates in one of two modes depending on which NSE files are available:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>Source</th><th>Accuracy</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Live SPAN</strong></td>
+          <td>SPAN XML (<code>nsccl.{YYYYMMDD}.s.zip</code>) + bhavcopy</td>
+          <td>Exact — uses NSE's official 16-scenario risk arrays</td>
+        </tr>
+        <tr>
+          <td><strong>Estimated</strong></td>
+          <td>Bhavcopy only</td>
+          <td>Approximate — PSR estimated from config rates; typically within 2–5% of exchange values</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The status chip in the top-right corner of the UI shows the current mode.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     USER GUIDE
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="guide">
+  <h1>User Guide</h1>
+  <p class="section-intro">A walkthrough of the portfolio calculator interface.</p>
+
+  <h2 id="guide-status">Status Indicators</h2>
+  <p>The chip in the top-right corner shows the current data state:</p>
+  <div class="chip-demo">
+    <span class="chip live">Live</span>
+    <span class="chip estimated">Estimated</span>
+    <span class="chip stale">Stale</span>
+    <span class="chip nodata">No Data</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Chip</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Live</strong> (green)</td><td>Official SPAN XML loaded — margins match NSE exactly</td></tr>
+        <tr><td><strong>Estimated</strong> (orange)</td><td>Only bhavcopy available — PSR approximated from config rates</td></tr>
+        <tr><td><strong>Stale</strong> (yellow)</td><td>Data is from a prior trading day</td></tr>
+        <tr><td><strong>No Data</strong> (red)</td><td>Nothing loaded yet; click Refresh Data</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="guide-positions">Adding Positions</h2>
+
+  <h3>Options</h3>
+  <ol class="steps">
+    <li>Select a <strong>Symbol</strong> (e.g., NIFTY, BANKNIFTY, RELIANCE).</li>
+    <li>Select <strong>Option</strong> type (this is the default).</li>
+    <li>Pick an <strong>Expiry</strong> date from the dropdown.</li>
+    <li>Pick a <strong>Strike</strong> — all strikes available for that expiry are listed.</li>
+    <li>Choose <strong>CE</strong> (call) or <strong>PE</strong> (put).</li>
+    <li>Set <strong>Side</strong>: Buy (long) or Sell (short). Default is Sell.</li>
+    <li>Set <strong>Lots</strong> (1–5000).</li>
+    <li>Click <strong>Add to Portfolio</strong> or press Enter.</li>
+  </ol>
+
+  <h3>Futures</h3>
+  <ol class="steps">
+    <li>Select a <strong>Symbol</strong>.</li>
+    <li>Select <strong>Future</strong> type.</li>
+    <li>Pick an <strong>Expiry</strong>.</li>
+    <li>Set <strong>Side</strong> and <strong>Lots</strong>.</li>
+    <li>Click <strong>Add to Portfolio</strong>.</li>
+  </ol>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <p>Adding the same contract key + side combination again <strong>merges</strong> into the existing row — it adds to the lot count rather than creating a duplicate.</p>
+    </div>
+  </div>
+
+  <h3>The Portfolio Table</h3>
+  <p>Each row shows the contract name, lot count, side, expiry, and estimated notional value.</p>
+  <ul>
+    <li><strong>Prev. Close</strong> (futures only) — enter yesterday's settlement price to calculate variation margin. Leave blank to omit.</li>
+    <li><strong>✕ Remove</strong> — removes a single position.</li>
+    <li><strong>Clear All</strong> — empties the entire portfolio.</li>
+  </ul>
+
+  <h2 id="guide-results">Reading Results</h2>
+  <p>Click <strong>Calculate Margin</strong> once at least one position is in the portfolio.</p>
+
+  <h3>Summary Panel</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SPAN Margin</strong></td><td>Worst-case scenario loss across all commodities after spread credits</td></tr>
+        <tr><td><strong>Exposure Margin</strong></td><td>2% (index) or 5% (stock) of notional; zero for long options</td></tr>
+        <tr><td><strong>Total Margin</strong></td><td>SPAN + Exposure</td></tr>
+        <tr><td><strong>Premium Received</strong></td><td>Cash collected for short option positions (already in your account)</td></tr>
+        <tr><td><strong>Variation Margin</strong></td><td>MTM gain (+) or loss (−) on futures since previous close. Only shown when Prev. Close is filled.</td></tr>
+        <tr><td><strong>Net Cash Required</strong></td><td>Total Margin − Variation Margin gain. The actual cash you need to post today.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>By-Commodity Breakdown</h3>
+  <p>One card per underlying showing Scan Risk, Short Option Minimum, Inter-spread Credit, final SPAN, and Exposure for that underlying.</p>
+
+  <h3>By-Position Table</h3>
+  <p>One row per position with contract name, lots, side, notional value, worst scenario number (1–16), scenario loss, exposure margin, variation margin, ISIN (stocks only), and data mode.</p>
+
+  <h2 id="guide-vm">Variation Margin (MTM)</h2>
+  <p>Variation margin is the daily mark-to-market cash flow on futures that NSE collects or credits each evening.</p>
+  <ul>
+    <li><strong>Gain</strong> (price moved in your favour): positive number — reduces Net Cash Required.</li>
+    <li><strong>Loss</strong> (price moved against you): negative number — increases Net Cash Required.</li>
+  </ul>
+
+  <div class="callout info">
+    <div class="callout-icon">📐</div>
+    <div class="callout-body">
+      <p><strong>Example:</strong> Short 1 lot NIFTY future. Yesterday's close ₹22,400, today's settlement ₹22,200.</p>
+      <p>VM = 1 lot × 75 (lot size) × (22,200 − 22,400) = <strong>−₹15,000</strong> (loss — you must pay this).</p>
+      <p>Net Cash Required = Total Margin + ₹15,000.</p>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <p><strong>Mixed portfolios</strong> (long + short options on the same underlying) benefit from SPAN netting — the worst combined scenario is less than the sum of individual worsts.</p>
+      <p><strong>Long options</strong> pay no exposure margin — the premium is the maximum loss.</p>
+      <p>If results show <strong>Estimated</strong> mode, refresh after 18:30 IST to get official SPAN data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     API REFERENCE
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="api">
+  <h1>API Reference</h1>
+  <p class="section-intro">
+    All endpoints are under <code>/api/</code>. The server runs on <code>http://localhost:5000</code> by default.<br>
+    Dates are always <code>YYYY-MM-DD</code> strings. Monetary values are floats in INR.
+    Lot quantities are integers — positive = long, negative = short.
+  </p>
+
+  <!-- POST /margin/calculate -->
+  <h2 id="api-margin">Margin</h2>
+  <div class="endpoint">
+    <div class="endpoint-header">
+      <span class="badge badge-post">POST</span>
+      <span class="endpoint-path">/api/margin/calculate</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Calculate portfolio SPAN + exposure margin for a list of positions.</p>
+
+      <h4>Request body</h4>
+      <pre><code class="language-json">{
+  "trade_date": "2026-04-10",
+  "positions": [
+    {
+      "contract_key": "NIFTY-OPTIDX-20260424-22500-CE",
+      "quantity": -2,
+      "prev_settlement": 0.0
+    }
+  ]
+}</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th></th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>trade_date</code></td><td>string</td><td><span class="tag tag-optional">optional</span></td><td>Defaults to most recent trading day</td></tr>
+            <tr><td><code>positions</code></td><td>array</td><td><span class="tag tag-required">required</span></td><td>At least one element</td></tr>
+            <tr><td><code>positions[].contract_key</code></td><td>string</td><td><span class="tag tag-required">required</span></td><td>See contract key format below</td></tr>
+            <tr><td><code>positions[].quantity</code></td><td>int</td><td><span class="tag tag-required">required</span></td><td>Signed: negative = short, positive = long (in lots)</td></tr>
+            <tr><td><code>positions[].prev_settlement</code></td><td>float</td><td><span class="tag tag-optional">optional</span></td><td>Previous day settlement for variation margin; omit or pass <code>0</code> to skip</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Contract key format</h4>
+      <pre><code class="language-text">{SYMBOL}-{INSTR_TYPE}-{YYYYMMDD}[-{STRIKE}][-{OPT_TYPE}]
+
+Examples:
+  NIFTY-FUTIDX-20260424
+  NIFTY-OPTIDX-20260424-22500-CE
+  RELIANCE-FUTSTK-20260430
+  RELIANCE-OPTSTK-20260430-1400-PE</code></pre>
+
+      <h4>Response 200</h4>
+      <pre><code class="language-json">{
+  "trade_date": "2026-04-10",
+  "summary": {
+    "span_margin": 125000.00,
+    "exposure_margin": 18750.00,
+    "total_margin": 143750.00,
+    "premium_received": 25000.00,
+    "variation_margin": 5000.00,
+    "net_cash_required": 138750.00,
+    "data_mode": "span_file"
+  },
+  "by_commodity": [
+    {
+      "commodity": "NIFTY",
+      "scan_risk": 130000.00,
+      "intra_spread_charge": 0.00,
+      "inter_spread_credit": 5000.00,
+      "short_option_min": 0.00,
+      "commodity_span": 125000.00,
+      "exposure_margin": 18750.00
+    }
+  ],
+  "by_position": [
+    {
+      "contract_key": "NIFTY-OPTIDX-20260424-22500-CE",
+      "symbol": "NIFTY",
+      "instrument_type": "OPTIDX",
+      "expiry_date": "2026-04-24",
+      "strike_price": 22500.0,
+      "option_type": "CE",
+      "side": "sell",
+      "lots": 2,
+      "lot_size": 75,
+      "underlying_price": 22600.00,
+      "future_price": 150.50,
+      "notional_value": 3390000.00,
+      "worst_scenario": 6,
+      "worst_scenario_loss": 65000.00,
+      "exposure_margin": 0.00,
+      "position_type": "short_option",
+      "data_mode": "span_file",
+      "underlying_isin": null,
+      "variation_margin": null
+    }
+  ]
+}</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th><code>summary.data_mode</code></th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>"span_file"</code></td><td>All positions used official SPAN risk arrays</td></tr>
+            <tr><td><code>"estimated"</code></td><td>All positions used fallback PSR approximation</td></tr>
+            <tr><td><code>"mixed"</code></td><td>Some positions official, some estimated</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><code>by_position[].variation_margin</code> is <code>null</code> for options or when <code>prev_settlement</code> was not provided. For futures: <code>quantity × lot_size × (today_settle − prev_settlement)</code>.</p>
+
+      <h4>Errors</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Code</th><th>Cause</th></tr></thead>
+          <tbody>
+            <tr><td><code>400</code></td><td>Missing <code>positions</code>, invalid <code>trade_date</code>, or <code>quantity == 0</code></td></tr>
+            <tr><td><code>422</code></td><td>Contract key not found in database for the given trade date</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instruments -->
+  <h2 id="api-symbols">Instruments</h2>
+
+  <div class="endpoint" id="api-symbols">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/instruments/symbols</span>
+    </div>
+    <div class="endpoint-body">
+      <p>List all underlying symbols available for a trade date. <code>date</code> defaults to most recent trading day.</p>
+      <pre><code class="language-json">{ "symbols": ["BANKNIFTY", "NIFTY", "RELIANCE", ...], "trade_date": "2026-04-10" }</code></pre>
+    </div>
+  </div>
+
+  <div class="endpoint" id="api-expiries">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/instruments/expiries?symbol=NIFTY</span>
+    </div>
+    <div class="endpoint-body">
+      <p>List expiry dates for a symbol. Both futures and options expiries are included, sorted ascending.</p>
+      <pre><code class="language-json">{ "symbol": "NIFTY", "expiries": ["2026-04-24", "2026-05-28", "2026-06-25"] }</code></pre>
+    </div>
+  </div>
+
+  <div class="endpoint" id="api-strikes">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/instruments/strikes?symbol=NIFTY&amp;expiry=2026-04-24</span>
+    </div>
+    <div class="endpoint-body">
+      <p>List available strikes for a symbol + expiry (options only). <code>ce_key</code> or <code>pe_key</code> is <code>null</code> if that leg doesn't exist.</p>
+      <pre><code class="language-json">{
+  "symbol": "NIFTY",
+  "expiry_date": "2026-04-24",
+  "strikes": [
+    { "strike": 22400.0, "ce_key": "NIFTY-OPTIDX-20260424-22400-CE", "pe_key": "..." },
+    { "strike": 22450.0, "ce_key": "...", "pe_key": "..." }
+  ]
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="endpoint" id="api-futures">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/instruments/futures?symbol=NIFTY</span>
+    </div>
+    <div class="endpoint-body">
+      <p>List all futures contracts for a symbol. <code>prev_settlement</code> is the previous day's close — useful as the default for Prev. Close input.</p>
+      <pre><code class="language-json">{
+  "symbol": "NIFTY",
+  "futures": [{
+    "contract_key": "NIFTY-FUTIDX-20260424",
+    "instrument_type": "FUTIDX",
+    "expiry_date": "2026-04-24",
+    "lot_size": 75,
+    "underlying_price": 22600.00,
+    "future_price": 22615.00,
+    "prev_settlement": 22580.00,
+    "underlying_isin": null
+  }]
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="endpoint" id="api-contract">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/instruments/contract/{contract_key}</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Fetch a single contract by its key. Returns <code>404</code> if not found. Response has the same structure as a single element from the futures list.</p>
+    </div>
+  </div>
+
+  <div class="endpoint" id="api-search">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/instruments/search?q=NIFTY&amp;limit=50</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Prefix search across all contracts. Default limit 50, max 200. Results ordered by symbol, expiry, strike.</p>
+    </div>
+  </div>
+
+  <!-- Data Management -->
+  <h2>Data Management</h2>
+
+  <div class="endpoint" id="api-status">
+    <div class="endpoint-header">
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint-path">/api/span-status</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Returns the current state of loaded market data.</p>
+      <pre><code class="language-json">{
+  "status": "success",
+  "trade_date": "2026-04-10",
+  "file_type": "span_xml+bhavcopy",
+  "downloaded_at": "2026-04-10T18:35:22",
+  "instrument_count": 45066,
+  "risk_array_count": 45066,
+  "is_stale": false,
+  "data_mode": "span_file"
+}</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Values</th></tr></thead>
+          <tbody>
+            <tr><td><code>status</code></td><td><code>"success"</code> | <code>"pending"</code> | <code>"error"</code> | <code>"no_data"</code></td></tr>
+            <tr><td><code>file_type</code></td><td><code>"span_xml+bhavcopy"</code> | <code>"udiff_bhavcopy"</code></td></tr>
+            <tr><td><code>risk_array_count</code></td><td>0 in estimated mode; equals <code>instrument_count</code> in span_file mode</td></tr>
+            <tr><td><code>is_stale</code></td><td><code>true</code> if <code>trade_date</code> is earlier than the most recent trading day</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="endpoint" id="api-refresh">
+    <div class="endpoint-header">
+      <span class="badge badge-post">POST</span>
+      <span class="endpoint-path">/api/span/refresh</span>
+    </div>
+    <div class="endpoint-body">
+      <p>Trigger a manual download and parse of today's SPAN data. Always re-fetches even if data already exists. No request body required.</p>
+      <p>Returns the same shape as <code>GET /api/span-status</code>. This call is <strong>synchronous</strong> — it returns after the full download + parse completes (typically 15–60 seconds).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MARGIN ENGINE
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="engine">
+  <h1>Margin Engine</h1>
+  <p class="section-intro">
+    NSE uses the <strong>SPAN</strong> (Standard Portfolio Analysis of Risk) methodology.
+    It evaluates a portfolio's loss across 16 hypothetical market scenarios and charges the worst-case outcome,
+    plus a separate exposure margin on notional value.
+    The engine lives in <code>backend/margin/calculator.py</code>.
+  </p>
+
+  <h2 id="engine-steps">Calculation Steps</h2>
+
+  <h3>1. Load Contracts</h3>
+  <p>Each position carries a <code>contract_key</code>. The engine fetches the matching <code>Contract</code> and <code>RiskArray</code> rows from the database for the given trade date.</p>
+
+  <h3>2. Group by Commodity</h3>
+  <p>All positions on the same underlying (e.g., all NIFTY contracts regardless of expiry or strike) are grouped into a <strong>commodity group</strong>. SPAN netting happens within each group.</p>
+
+  <h3>3. Per-Commodity SPAN</h3>
+
+  <h4>a. Scenario P&amp;L</h4>
+  <p>For each of the 16 SPAN scenarios, the net portfolio P&amp;L is the sum across all positions:</p>
+  <pre><code class="language-text">scenario_pnl[s] = Σ (quantity_in_lots × risk_array[s])</code></pre>
+  <p><code>risk_array[s]</code> is already scaled per lot. Positive = loss for a long position.</p>
+
+  <h4>b. Worst-case scan risk</h4>
+  <p>Scenarios 15–16 are extreme moves (±2 × PSR). Only 35% of the extreme-scenario loss is charged:</p>
+  <pre><code class="language-python">adjusted = [pnl if s < 14 else pnl * 0.35 for s, pnl in enumerate(scenario_pnl)]
+scan_risk = max(adjusted)   # highest loss across all 16</code></pre>
+
+  <h4>c. Short option minimum (SOMC)</h4>
+  <pre><code class="language-text">somc = |quantity| × lot_size × short_option_min_charge</code></pre>
+
+  <h4>d. Commodity SPAN</h4>
+  <pre><code class="language-text">commodity_span = max(scan_risk, short_option_minimum)</code></pre>
+  <div class="callout note">
+    <div class="callout-icon">📌</div>
+    <div class="callout-body"><p><strong>All-long-option commodity:</strong> if every position is a long option, <code>scan_risk</code> is zeroed — the premium already paid caps the maximum loss.</p></div>
+  </div>
+
+  <h3>4. Intra-Commodity Spread Charges</h3>
+  <p>Calendar spread charges apply when a commodity has positions in multiple expiries with opposite signs (e.g., long near-month + short far-month future). A simplified charge is applied to matched spread units.</p>
+
+  <h3>5. Inter-Commodity Spread Credits</h3>
+  <p>After per-commodity SPAN, the engine looks for delta-matched hedges <em>across</em> commodities. These reduce total SPAN.</p>
+
+  <h2 id="engine-spreads">Spread Pairs</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Leg 1</th><th>Leg 2</th><th>Credit</th><th>Delta Ratio</th></tr></thead>
+      <tbody>
+        <tr><td>BANKNIFTY</td><td>NIFTY</td><td>50%</td><td>1 : 3</td></tr>
+        <tr><td>FINNIFTY</td><td>NIFTY</td><td>50%</td><td>1 : 2</td></tr>
+        <tr><td>MIDCPNIFTY</td><td>NIFTY</td><td>50%</td><td>1 : 2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Matching: compute net delta per commodity → check for opposite-signed deltas → credit = <code>spread_units × credit_rate × min(scan_risk_leg1, scan_risk_leg2)</code>.</p>
+
+  <h2 id="engine-exposure">Exposure Margin</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Instrument Type</th><th>Rate</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>FUTIDX, OPTIDX</td><td>2%</td><td>Per NSE circular NSCCL/CMPT/46514</td></tr>
+        <tr><td>FUTSTK, OPTSTK</td><td>5%</td><td></td></tr>
+        <tr><td>Long options</td><td>0%</td><td>Premium is the maximum loss</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <pre><code class="language-text">notional = |quantity| × lot_size × underlying_price
+exposure = notional × rate</code></pre>
+
+  <h2 id="engine-scenarios">The 16 SPAN Scenarios</h2>
+  <p>The <code>risk_arrays</code> table stores 16 values (<code>s01</code>–<code>s16</code>) per lot for each contract.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Scenario</th><th>Price Move</th><th>Vol Move</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0</td><td>Up</td></tr>
+        <tr><td>2</td><td>0</td><td>Down</td></tr>
+        <tr><td>3</td><td>+⅓ PSR</td><td>Up</td></tr>
+        <tr><td>4</td><td>+⅓ PSR</td><td>Down</td></tr>
+        <tr><td>5</td><td>−⅓ PSR</td><td>Up</td></tr>
+        <tr><td>6</td><td>−⅓ PSR</td><td>Down</td></tr>
+        <tr><td>7</td><td>+⅔ PSR</td><td>Up</td></tr>
+        <tr><td>8</td><td>+⅔ PSR</td><td>Down</td></tr>
+        <tr><td>9</td><td>−⅔ PSR</td><td>Up</td></tr>
+        <tr><td>10</td><td>−⅔ PSR</td><td>Down</td></tr>
+        <tr><td>11</td><td>+1 PSR</td><td>Up</td></tr>
+        <tr><td>12</td><td>+1 PSR</td><td>Down</td></tr>
+        <tr><td>13</td><td>−1 PSR</td><td>Up</td></tr>
+        <tr><td>14</td><td>−1 PSR</td><td>Down</td></tr>
+        <tr class="scenario-extreme"><td>15</td><td>+2 PSR</td><td colspan="1"><em>Extreme — 35% cover applied</em></td></tr>
+        <tr class="scenario-extreme"><td>16</td><td>−2 PSR</td><td colspan="1"><em>Extreme — 35% cover applied</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The SPAN XML contains per-unit values. The parser multiplies by <code>lot_size</code> before storing, so the calculator uses <code>quantity_lots × risk_array[s]</code> with no further scaling.</p>
+
+  <h2 id="engine-estimated">Estimated Mode (Fallback)</h2>
+  <p>When the SPAN XML is unavailable, risk arrays are synthesised in <code>fallback_rates.py</code>:</p>
+  <pre><code class="language-text">psr_inr = fallback_psr_rate × underlying_price</code></pre>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Symbol</th><th>Rate</th></tr></thead>
+      <tbody>
+        <tr><td>NIFTY, SENSEX</td><td>8%</td></tr>
+        <tr><td>BANKNIFTY, FINNIFTY, MIDCPNIFTY</td><td>9%</td></tr>
+        <tr><td>All stocks</td><td>15%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Futures use delta = 1.0. Options use a delta approximation: ATM ≈ 0.5, interpolated from moneyness. Vega and time decay are not modelled in estimated mode.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     DATA PIPELINE
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="pipeline">
+  <h1>Data Pipeline</h1>
+  <p class="section-intro">
+    NSEMargins fetches data from two NSE archive endpoints. The pipeline runs automatically on startup and on a nightly schedule; it can also be triggered manually via the API.
+  </p>
+
+  <h2 id="pipeline-sources">Data Sources</h2>
+
+  <h3>1. UDiFF Bhavcopy <span style="color:var(--red);font-size:12px;font-weight:600;vertical-align:middle;margin-left:6px;">REQUIRED</span></h3>
+  <pre><code class="language-text">https://nsearchives.nseindia.com/content/fo/
+  BhavCopy_NSE_FO_0_0_0_{YYYYMMDD}_F_0000.csv.zip</code></pre>
+  <p>Provides: all F&amp;O contracts, lot sizes, settlement prices, previous day close, underlying prices, instrument types. Cached to <code>data/fo_bhavcopy_{YYYYMMDD}.csv.zip</code>.</p>
+  <p>If the bhavcopy download fails, the pipeline aborts for that date.</p>
+
+  <h3>2. SPAN XML <span style="color:var(--green);font-size:12px;font-weight:600;vertical-align:middle;margin-left:6px;">SUPPLEMENTARY</span></h3>
+  <pre><code class="language-text">https://nsearchives.nseindia.com/archives/nsccl/span/
+  nsccl.{YYYYMMDD}.s.zip</code></pre>
+  <p>Provides: official 16-scenario risk arrays, official PSR/VSR per underlying, composite delta. Cached to <code>data/span_{YYYYMMDD}.zip</code>.</p>
+  <p>If this download fails the pipeline continues in Estimated mode — margins use fallback PSR rates.</p>
+
+  <h3>3. ISIN Map <span style="color:var(--muted);font-size:12px;font-weight:600;vertical-align:middle;margin-left:6px;">ONE-TIME</span></h3>
+  <p>NSE EQUITY_L.csv, downloaded once and cached in <code>data/equity_isin.json</code>. Provides ISIN codes for stock underlyings. Index instruments receive <code>null</code>.</p>
+
+  <h2 id="pipeline-flow">Processing Flow</h2>
+  <div class="flow">
+<span class="hl">download_for_date()</span>
+  ├─ Fetch bhavcopy zip  ───────► <span class="hl">data/fo_bhavcopy_{date}.csv.zip</span>
+  └─ Fetch SPAN XML zip  ───────► <span class="hl">data/span_{date}.zip</span>  (if available)
+       <span class="arrow">↓</span>
+<span class="hl">orchestrator.parse_downloaded_file()</span>
+  ├─ <span class="hl">bhavcopy_parser.parse_bhavcopy()</span>
+  │    └─ Creates Contract rows + CombinedCommodity (estimated PSR)
+  └─ <span class="hl">span_xml_parser.parse_span_xml()</span>  (only if span zip exists)
+       └─ Creates RiskArray rows
+       └─ Updates CombinedCommodity with official PSR/VSR
+       └─ Sets is_estimated = False
+  </div>
+
+  <p>Bhavcopy always runs first — the SPAN XML parser relies on Contract rows already being present to match risk arrays.</p>
+
+  <h3>Instrument Type Mapping (Bhavcopy)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>CSV Code</th><th>Internal Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>IDF</code></td><td><code>FUTIDX</code></td><td>Index Future</td></tr>
+        <tr><td><code>IDO</code></td><td><code>OPTIDX</code></td><td>Index Option</td></tr>
+        <tr><td><code>STF</code></td><td><code>FUTSTK</code></td><td>Stock Future</td></tr>
+        <tr><td><code>STO</code></td><td><code>OPTSTK</code></td><td>Stock Option</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="pipeline-scheduler">Scheduler</h2>
+  <p>Three APScheduler cron jobs run <strong>Monday–Friday IST</strong>:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Time (IST)</th><th>Behaviour</th></tr></thead>
+      <tbody>
+        <tr><td>18:30</td><td>Primary — forces refresh even if data already present</td></tr>
+        <tr><td>19:00</td><td>Retry — skips if already succeeded</td></tr>
+        <tr><td>19:30</td><td>Final retry — skips if already succeeded</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>NSE typically publishes bhavcopy by 18:00–18:15 and the SPAN XML by 18:30–18:45. The retries ensure the SPAN XML is captured even when delayed.</p>
+
+  <h2 id="pipeline-caching">Caching &amp; Skip Logic</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Condition</th><th>Behaviour</th></tr></thead>
+      <tbody>
+        <tr><td><code>SpanFile.parse_status == 'success'</code></td><td>Startup + scheduler skip silently</td></tr>
+        <tr><td>Bhavcopy zip on disk</td><td>Re-uses cache; no re-download</td></tr>
+        <tr><td>SPAN XML zip on disk</td><td>Re-uses cache; no re-download</td></tr>
+        <tr><td><code>force=True</code> (manual refresh)</td><td>Deletes existing DB data for the date, re-parses from cache (or re-downloads if zip missing)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Cached zip files in <code>data/</code> are never automatically deleted — they serve as a replay buffer if re-parsing is needed after code changes.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     ARCHITECTURE
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="arch">
+  <h1>Architecture</h1>
+  <p class="section-intro">System design, database schema, configuration reference, and frontend module breakdown.</p>
+
+  <h2>System Overview</h2>
+  <div class="flow">
+<span class="hl">NSE Archives</span>  (public HTTPS)
+    <span class="arrow">↓</span>
+<span class="hl">downloader.py</span>  bhavcopy zip + SPAN XML zip
+    <span class="arrow">↓</span>
+<span class="hl">bhavcopy_parser.py</span>  →  Contract + CombinedCommodity rows (estimated)
+<span class="hl">span_xml_parser.py</span>  →  RiskArray rows + official PSR/VSR
+    <span class="arrow">↓</span>
+<span class="hl">SQLite — nse_margin.db</span>  (WAL mode)
+    <span class="arrow">↓</span>
+<span class="hl">/api/instruments/*</span>   <span class="hl">/api/margin/calculate</span>   <span class="hl">/api/span-*</span>
+    <span class="arrow">↓</span>
+<span class="hl">index.html</span>  +  ES modules  (no build step)
+  </div>
+
+  <h2 id="arch-schema">Database Schema</h2>
+  <p>SQLite file: <code>data/nse_margin.db</code>. WAL mode + 10 s busy timeout is enabled on every connection via a SQLAlchemy event listener — prevents "database is locked" errors under concurrent access.</p>
+
+  <h3>span_files</h3>
+  <p>One row per trade date — the root record for all data for that day.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>trade_date</code></td><td>date</td><td>Unique + indexed</td></tr>
+        <tr><td><code>file_type</code></td><td>str</td><td><code>"udiff_bhavcopy"</code> | <code>"span_xml+bhavcopy"</code></td></tr>
+        <tr><td><code>parse_status</code></td><td>str</td><td><code>"pending"</code> | <code>"success"</code> | <code>"error"</code></td></tr>
+        <tr><td><code>error_message</code></td><td>text</td><td>Populated on error</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>combined_commodities</h3>
+  <p>SPAN parameters per underlying per day.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>commodity_code</code></td><td>str</td><td>e.g., <code>"NIFTY"</code></td></tr>
+        <tr><td><code>price_scan_range</code></td><td>float</td><td>PSR in INR</td></tr>
+        <tr><td><code>volatility_scan_range</code></td><td>float</td><td>VSR as fraction (e.g., 0.04)</td></tr>
+        <tr><td><code>short_option_min_charge</code></td><td>float</td><td>SOMC in INR</td></tr>
+        <tr><td><code>exposure_margin_rate</code></td><td>float</td><td>0.02 for index, 0.05 for stock</td></tr>
+        <tr><td><code>is_estimated</code></td><td>bool</td><td><code>True</code> = estimated, <code>False</code> = official SPAN values</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>contracts</h3>
+  <p>One row per contract per trade date.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>commodity_code</code></td><td>str</td><td>Underlying symbol</td></tr>
+        <tr><td><code>instrument_type</code></td><td>str</td><td><code>FUTIDX</code> | <code>OPTIDX</code> | <code>FUTSTK</code> | <code>OPTSTK</code></td></tr>
+        <tr><td><code>expiry_date</code></td><td>date</td><td></td></tr>
+        <tr><td><code>strike_price</code></td><td>float</td><td>Null for futures</td></tr>
+        <tr><td><code>option_type</code></td><td>str</td><td><code>"CE"</code> | <code>"PE"</code> | null</td></tr>
+        <tr><td><code>lot_size</code></td><td>int</td><td>Contracts per lot</td></tr>
+        <tr><td><code>underlying_price</code></td><td>float</td><td>Spot / settlement of underlying</td></tr>
+        <tr><td><code>future_price</code></td><td>float</td><td>Settlement price of this contract</td></tr>
+        <tr><td><code>prev_settlement</code></td><td>float</td><td>Previous day settlement (variation margin)</td></tr>
+        <tr><td><code>underlying_isin</code></td><td>str</td><td>ISIN of stock underlying; null for indices</td></tr>
+        <tr><td><code>contract_key</code></td><td>str</td><td>Unique per (trade_date, contract_key)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>risk_arrays</h3>
+  <p>One row per contract. Only populated when the SPAN XML file is available.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Column</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>s01</code> – <code>s16</code></td><td>16 scenario values in INR <strong>per lot</strong> (pre-multiplied by lot_size at parse time)</td></tr>
+        <tr><td><code>composite_delta</code></td><td>Delta of the contract — used for inter-commodity spread matching</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>inter_commodity_spreads / intra_commodity_spreads</h3>
+  <p>Spread credit/charge rules loaded from the official SPAN file or initialised from <code>config.FALLBACK_INTER_SPREADS</code>.</p>
+
+  <h2 id="arch-config">Configuration (<code>config.py</code>)</h2>
+
+  <h3>Margin Rates</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Key</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>INDEX_EXPOSURE_MARGIN_RATE</code></td><td>0.02</td><td>2% for FUTIDX/OPTIDX</td></tr>
+        <tr><td><code>STOCK_EXPOSURE_MARGIN_RATE</code></td><td>0.05</td><td>5% for FUTSTK/OPTSTK</td></tr>
+        <tr><td><code>EXTREME_SCENARIO_COVER_FRACTION</code></td><td>0.35</td><td>Cover applied to scenarios 15–16</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>HTTP &amp; Retry</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Key</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>DOWNLOAD_TIMEOUT_CONNECT</code></td><td>30 s</td></tr>
+        <tr><td><code>DOWNLOAD_TIMEOUT_READ</code></td><td>120 s</td></tr>
+        <tr><td><code>DOWNLOAD_MAX_RETRIES</code></td><td>3</td></tr>
+        <tr><td><code>DOWNLOAD_BACKOFF_FACTOR</code></td><td>5 s (→ 5, 15, 30 s)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Scheduler</h3>
+  <pre><code class="language-python">SPAN_REFRESH_SCHEDULE = [
+    {"hour": 18, "minute": 30},   # primary
+    {"hour": 19, "minute":  0},   # retry 1
+    {"hour": 19, "minute": 30},   # retry 2
+]</code></pre>
+
+  <h3>Schema Migrations</h3>
+  <p><code>app.py:_apply_schema_migrations()</code> runs idempotent <code>ALTER TABLE ADD COLUMN</code> statements on every startup. To add a new column:</p>
+  <ol>
+    <li>Add the <code>db.Column</code> to the ORM model in <code>models/db.py</code>.</li>
+    <li>Add the <code>ALTER TABLE ... ADD COLUMN ...</code> statement to the <code>migrations</code> list.</li>
+  </ol>
+
+  <h2 id="arch-frontend">Frontend Modules</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Module</th><th>Responsibility</th></tr></thead>
+      <tbody>
+        <tr><td><code>app.js</code></td><td>DOM events, cascading dropdowns (symbol → expiry → strike), orchestration</td></tr>
+        <tr><td><code>api.js</code></td><td>All fetch calls — returns parsed JSON or throws on HTTP error</td></tr>
+        <tr><td><code>portfolio.js</code></td><td>In-memory position list with pub/sub change notifications; <code>toApiPayload()</code></td></tr>
+        <tr><td><code>ui.js</code></td><td>All DOM writes — table rendering, result panel, error toasts</td></tr>
+        <tr><td><code>formatters.js</code></td><td>Indian number format (<code>formatINR</code>), date formatting, contract name formatting</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Native ES modules — no build step required. The instrument-type radios are proxied through a hidden <code>&lt;select id="type-select"&gt;</code> so <code>app.js</code> has a single <code>.value</code> check.</p>
+
+  <h2>Development Commands</h2>
+  <pre><code class="language-bash"># Start server (debug mode, auto-reload)
+venv\Scripts\activate && python run.py
+
+# Force data re-fetch
+curl -X POST http://localhost:5000/api/span/refresh
+
+# Check loaded data
+curl http://localhost:5000/api/span-status</code></pre>
+</section>
+
+</div><!-- /content -->
+</main>
+
+<script>
+  hljs.highlightAll();
+
+  // Active nav highlighting on scroll
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+  function updateActive() {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    navLinks.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+
+  // Smooth close sidebar on mobile link click
+  navLinks.forEach(l => l.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+  }));
+</script>
+</body>
+</html>
