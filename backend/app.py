@@ -4,12 +4,27 @@ Flask application factory.
 
 import logging
 import os
+import sqlite3
 from pathlib import Path
 
 from flask import Flask, send_from_directory
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 from backend.extensions import db, scheduler
 from config import Config
+
+
+# Enable WAL mode and a generous busy-timeout for all SQLite connections.
+# WAL lets readers and writers coexist; busy_timeout retries instead of
+# raising "database is locked" immediately.
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragmas(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cur = dbapi_connection.cursor()
+        cur.execute("PRAGMA journal_mode=WAL")
+        cur.execute("PRAGMA busy_timeout=10000")   # 10 s
+        cur.close()
 
 logging.basicConfig(
     level=logging.INFO,

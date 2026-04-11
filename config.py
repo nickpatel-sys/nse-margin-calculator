@@ -14,14 +14,13 @@ class Config:
 
     # ── NSE download endpoints ────────────────────────────────────────────────
     NSE_HOME_URL = "https://www.nseindia.com"
-    NSE_SPAN_BASE_URL = "https://nsearchives.nseindia.com/content/nsccl"
+    NSE_SPAN_BASE_URL = "https://nsearchives.nseindia.com/archives/nsccl/span"
     NSE_BHAVCOPY_BASE_URL = "https://nsearchives.nseindia.com/content/fo"
 
-    # SPAN SPN file pattern  (try YYYYMMDD substitution)
-    NSE_SPAN_URL_PATTERN = (
-        "{base}/nsccl.{date}.s.inn.spn.zip"
-    )
-    # UDiFF bhavcopy pattern (confirmed public)
+    # SPAN XML file (EOD, confirmed public — contains official risk arrays)
+    # URL: https://nsearchives.nseindia.com/archives/nsccl/span/nsccl.{YYYYMMDD}.s.zip
+    NSE_SPAN_URL_PATTERN = "{base}/nsccl.{date}.s.zip"
+    # UDiFF bhavcopy pattern (confirmed public — provides lot sizes + contract metadata)
     NSE_BHAVCOPY_URL_PATTERN = (
         "{base}/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip"
     )

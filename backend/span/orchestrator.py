@@ -40,20 +40,36 @@ def refresh_for_date(trade_date: date, force: bool = False) -> dict:
 def parse_downloaded_file(
     zip_path: Path, file_type: str, trade_date: date, span_file: SpanFile
 ) -> dict:
-    """Parse an already-downloaded file and update the DB."""
+    """
+    Parse an already-downloaded bhavcopy file, then overlay the SPAN XML if present.
+
+    Step 1: Parse bhavcopy → contracts + estimated combined commodities.
+    Step 2: If span_{date}.zip exists on disk, parse SPAN XML → populate risk arrays
+            and update CombinedCommodity PSR/VSR with official values.
+    """
     if span_file is None:
         logger.error("No SpanFile DB record found for %s", trade_date)
         return {"status": "error", "message": "No DB record for this date."}
 
     try:
-        if file_type == "span_spn":
-            from backend.span.parser import parse_span_file
-            count = parse_span_file(zip_path, trade_date, span_file)
-            has_risk_arrays = count > 0
-        else:
-            from backend.span.bhavcopy_parser import parse_bhavcopy
-            count = parse_bhavcopy(zip_path, trade_date, span_file)
-            has_risk_arrays = False
+        # Step 1 — bhavcopy (always)
+        from backend.span.bhavcopy_parser import parse_bhavcopy
+        count = parse_bhavcopy(zip_path, trade_date, span_file)
+
+        # Step 2 — SPAN XML (opportunistic)
+        has_risk_arrays = False
+        span_count = 0
+        from backend.span.downloader import span_xml_path
+        sx_path = span_xml_path(trade_date)
+        if sx_path is not None:
+            try:
+                from backend.span.span_xml_parser import parse_span_xml
+                span_count = parse_span_xml(sx_path, trade_date, span_file)
+                has_risk_arrays = span_count > 0
+                if has_risk_arrays:
+                    span_file.file_type = "span_xml+bhavcopy"
+            except Exception as exc:
+                logger.warning("SPAN XML parse failed for %s: %s", trade_date, exc)
 
         span_file.parse_status = "success"
         span_file.error_message = None
@@ -61,6 +77,7 @@ def parse_downloaded_file(
 
         return _status_dict(span_file, "success", {
             "instrument_count": count,
+            "risk_array_count": span_count,
             "has_risk_arrays": has_risk_arrays,
             "data_mode": "span_file" if has_risk_arrays else "estimated",
         })
