@@ -61,6 +61,17 @@ newgrp docker
 docker --version
 ```
 
+Add a 1 GB swap file — required on t2.micro (1 GB RAM) to prevent OOM during the initial data load:
+
+```bash
+sudo fallocate -l 1G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+free -h   # should show 1.0Gi swap
+```
+
 ---
 
 ## Step 3 — Copy the App to EC2
