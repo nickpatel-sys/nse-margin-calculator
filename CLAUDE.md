@@ -34,6 +34,7 @@ Full feature documentation lives in `docs/`:
 - `docs/Margin-Engine.md` — SPAN calculation logic
 - `docs/Data-Pipeline.md` — NSE data sources and parsers
 - `docs/Architecture.md` — DB schema, config, directory layout
+- `docs/Deployment.md` — Dockerfile, docker-compose, EC2 free tier deploy steps
 
 **Keep the wiki up to date** when making material changes: new API fields, new config keys, changes to margin calculation logic, new data sources, or schema migrations.
 

@@ -386,6 +386,17 @@
     <a class="nav-link sub" href="#arch-frontend">Frontend Modules</a>
   </div>
 
+  <div class="nav-section">
+    <div class="nav-section-label">Deployment</div>
+    <a class="nav-link" href="#deploy">EC2 Free Tier</a>
+    <a class="nav-link sub" href="#deploy-instance">1. Launch Instance</a>
+    <a class="nav-link sub" href="#deploy-docker">2. Install Docker</a>
+    <a class="nav-link sub" href="#deploy-copy">3. Copy App</a>
+    <a class="nav-link sub" href="#deploy-env">4. Configure Env</a>
+    <a class="nav-link sub" href="#deploy-run">5. Build &amp; Start</a>
+    <a class="nav-link sub" href="#deploy-ops">Operations</a>
+  </div>
+
   <div class="sidebar-footer">
     <a href="/">← Back to App</a>
   </div>
@@ -1177,6 +1188,138 @@ curl -X POST http://localhost:5000/api/span/refresh
 
 # Check loaded data
 curl http://localhost:5000/api/span-status</code></pre>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     DEPLOYMENT
+═══════════════════════════════════════════════════════════ -->
+<section class="doc-section" id="deploy">
+  <h1>Deployment — EC2 Free Tier</h1>
+  <p class="section-intro">
+    NSEMargins ships with a <code>Dockerfile</code> and <code>docker-compose.yml</code>.
+    The steps below deploy it on an AWS EC2 t2.micro instance — within the free tier.
+  </p>
+
+  <div class="callout info">
+    <div class="callout-icon">ℹ️</div>
+    <div class="callout-body">
+      <p><strong>Why single worker?</strong> The app uses SQLite (single writer) and APScheduler (must run in one process). Gunicorn is configured with <code>--workers 1 --threads 4</code> — one process, four concurrent request threads.</p>
+    </div>
+  </div>
+
+  <h2 id="deploy-instance">Step 1 — Launch an EC2 Instance</h2>
+  <ol class="steps">
+    <li>Open the <strong>EC2 Console</strong> → Launch Instance. Name it <code>nsemargins</code>.</li>
+    <li><strong>AMI:</strong> Ubuntu Server 24.04 LTS (free tier eligible).</li>
+    <li><strong>Instance type:</strong> <code>t2.micro</code> (free tier).</li>
+    <li><strong>Key pair:</strong> select or create one — save the <code>.pem</code> file.</li>
+    <li><strong>Security group:</strong> allow SSH (port 22) from your IP; HTTP (port 80) from anywhere.</li>
+    <li><strong>Storage:</strong> 20 GB gp3. Launch and note the <strong>Public IPv4 address</strong>.</li>
+  </ol>
+
+  <h2 id="deploy-docker">Step 2 — Install Docker on the Instance</h2>
+  <pre><code class="language-bash">ssh -i your-key.pem ubuntu@&lt;EC2_PUBLIC_IP&gt;
+
+# Install Docker
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  -o /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/etc/apt/keyrings/docker.asc] \
+  https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io \
+  docker-buildx-plugin docker-compose-plugin
+
+# Allow running docker without sudo
+sudo usermod -aG docker ubuntu && newgrp docker</code></pre>
+
+  <h2 id="deploy-copy">Step 3 — Copy the App to EC2</h2>
+  <p>From your local machine:</p>
+  <pre><code class="language-bash">rsync -avz --exclude='venv/' --exclude='data/' --exclude='.git/' \
+  -e "ssh -i your-key.pem" \
+  "path/to/NSE margin calculator/" \
+  ubuntu@&lt;EC2_PUBLIC_IP&gt;:/home/ubuntu/nsemargins/</code></pre>
+
+  <h2 id="deploy-env">Step 4 — Configure Environment Variables</h2>
+  <pre><code class="language-bash">cd /home/ubuntu/nsemargins
+
+# Generate a secure secret key
+python3 -c "import secrets; print(secrets.token_hex(32))"
+
+# Create .env (never commit this file)
+cat > .env &lt;&lt; 'EOF'
+SECRET_KEY=&lt;paste-generated-key-here&gt;
+EOF
+chmod 600 .env</code></pre>
+
+  <h2 id="deploy-run">Step 5 — Build and Start</h2>
+  <pre><code class="language-bash">cd /home/ubuntu/nsemargins
+
+docker compose build        # ~2 minutes on first run
+docker compose up -d        # start in background
+docker compose logs -f      # watch startup</code></pre>
+
+  <p>On first start the app downloads today's NSE data automatically. Watch for:</p>
+  <pre><code class="language-text">Bhavcopy: inserted 45066 contracts for 2026-04-10
+SPAN XML: wrote 45066 RiskArray rows for 2026-04-10</code></pre>
+
+  <p>The app is now available at <strong>http://&lt;EC2_PUBLIC_IP&gt;</strong></p>
+
+  <h3>Verify</h3>
+  <pre><code class="language-bash">curl http://&lt;EC2_PUBLIC_IP&gt;/api/span-status</code></pre>
+  <pre><code class="language-json">{
+  "data_mode": "span_file",
+  "instrument_count": 45066,
+  "risk_array_count": 45066,
+  "status": "success"
+}</code></pre>
+
+  <h2 id="deploy-ops">Operations</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Task</th><th>Command</th></tr></thead>
+      <tbody>
+        <tr><td>View live logs</td><td><code>docker compose logs -f</code></td></tr>
+        <tr><td>Restart container</td><td><code>docker compose restart</code></td></tr>
+        <tr><td>Update app (after rsync)</td><td><code>docker compose build &amp;&amp; docker compose up -d</code></td></tr>
+        <tr><td>Stop</td><td><code>docker compose down</code></td></tr>
+        <tr><td>Shell inside container</td><td><code>docker compose exec app bash</code></td></tr>
+        <tr><td>Manual SPAN refresh</td><td><code>curl -X POST http://localhost/api/span/refresh</code></td></tr>
+        <tr><td>Backup DB</td><td><code>docker compose exec app sqlite3 /app/data/nse_margin.db ".backup '/app/data/backup.db'"</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warning">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body">
+      <p><code>docker compose down -v</code> deletes the <code>nse_data</code> volume — this permanently deletes the database and all cached NSE files. Use <code>docker compose down</code> (without <code>-v</code>) for normal stops.</p>
+    </div>
+  </div>
+
+  <h2>Free Tier Limits</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Resource</th><th>Free Tier</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>EC2 compute</td><td>750 hrs/month t2.micro</td><td>One instance running 24/7 = 744 hrs ✓</td></tr>
+        <tr><td>EBS storage</td><td>30 GB gp3</td><td>Full DB + Docker image ≈ 2 GB ✓</td></tr>
+        <tr><td>Outbound data</td><td>15 GB/month</td><td>SPAN XML ~10 MB/day = 300 MB/month ✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Next Steps (Optional)</h2>
+  <ul>
+    <li><strong>Custom domain + HTTPS</strong> — assign an Elastic IP, point a domain at it, then add nginx + Let's Encrypt (Certbot) in front of gunicorn on port 443.</li>
+    <li><strong>Elastic IP</strong> — prevents the public IP from changing on instance stop/start.</li>
+    <li><strong>GitHub Actions</strong> — automate rsync + <code>docker compose up -d</code> on push to main.</li>
+  </ul>
 </section>
 
 </div><!-- /content -->

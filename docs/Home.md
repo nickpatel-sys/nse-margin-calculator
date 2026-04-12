@@ -13,6 +13,7 @@ NSEMargins is a local web application for calculating NSE F&O SPAN margins on a 
 | [Margin Engine](Margin-Engine.md) | How SPAN, exposure, spread, and variation margin are calculated |
 | [Data Pipeline](Data-Pipeline.md) | NSE data sources, download strategy, parsers, scheduler |
 | [Architecture](Architecture.md) | Database schema, configuration reference, deployment |
+| [Deployment](Deployment.md) | Dockerizing the app and deploying to AWS EC2 free tier |
 
 ---
 
