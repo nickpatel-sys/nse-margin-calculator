@@ -16,9 +16,18 @@ build/
 
 # Data / database (downloaded files and SQLite DB)
 data/*.db
+data/*.db-shm
+data/*.db-wal
 data/*.zip
 data/*.spn
 data/*.gz
+data/*.json
+data/*.log
+data/*.csv
+
+# Logs and test artifacts
+*.log
+test_output.txt
 
 # Keep the data directory itself
 !data/.gitkeep
