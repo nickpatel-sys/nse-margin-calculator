@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "80:5000"
+    volumes:
+      # Persist the SQLite DB and cached NSE zip files across container restarts.
+      - nse_data:/app/data
+    environment:
+      # Override in production — never use the default in a public deployment.
+      - SECRET_KEY=${SECRET_KEY:-change-me-before-going-public}
+      # Optional overrides (defaults are fine for most deployments):
+      # - DATA_DIR=/app/data
+      # - DATABASE_URL=sqlite:////app/data/nse_margin.db
+
+volumes:
+  nse_data:

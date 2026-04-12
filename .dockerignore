@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Runtime data — mounted as a volume in production, never baked into the image
+data/
+
+# Dev / repo artefacts
+.git/
+.gitignore
+test_output.txt
+
+# Local env files that must not leak into the image
+.env
+*.env
